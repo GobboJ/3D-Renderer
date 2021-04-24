@@ -3,6 +3,7 @@
 //
 #include <tuple>
 #include <memory>
+#include <array>
 #include "Object_Impl.h"
 #include "Concrete_Object_Impl.h"
 
@@ -34,6 +35,22 @@ public:
          * this.funcs.push_back([objToCall]() -> objToCall.render())
          *
          */
+    }
+
+    void setPosition(const double x, const double y, const double z) {
+        pimpl->setPosition(x, y, z);
+    }
+
+    void setRotation(const double rot_x, const double rot_y, const double rot_z) {
+        pimpl->setRotation(rot_x, rot_y, rot_z);
+    }
+
+    void setScale(const double scale_x, const double scale_y, const double scale_z) {
+        pimpl->setScale(scale_x, scale_y, scale_z);
+    }
+
+    void render(std::array<double, 16> camera) const {
+        pimpl->render(camera);
     }
 
     /*

@@ -48,7 +48,7 @@ public:
      * Returns the generated view matrix
      * @return the generated view matrix
      */
-    const std::array<double, 16> &getViewMatrix() const;
+    std::array<double, 16> getViewMatrix() const;
 };
 
 #endif //INC_3D_RENDERER_CAMERA_H

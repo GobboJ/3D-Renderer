@@ -29,13 +29,13 @@ Pipeline<target_t>::Pipeline(target_t *target, uint width, uint height) : target
 
 template<class target_t>
 void Pipeline<target_t>::render(const Scene<target_t> &scene) {
-    for (Object o : scene.getObjects()) {
-
+    for (const Object &o : scene.getObjects()) {
+        o.render(scene.getViewMatrix());
     }
 }
 
 template<class V, class S>
-void renderTriangle(const V &v1, const V &v2, const V &v3, S &shader) {
+void renderTriangle(const V &v1) {//}, const V &v2, const V &v3, S &shader) {
 
 }
 

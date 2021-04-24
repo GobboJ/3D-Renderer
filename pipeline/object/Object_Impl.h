@@ -10,6 +10,14 @@ namespace Object_private {
 
     public:
         virtual ~Object_Impl() = default;
+
+        virtual void setPosition(double x, double y, double z) = 0;
+
+        virtual void setRotation(double rot_x, double rot_y, double rot_z) = 0;
+
+        virtual void setScale(double scale_x, double scale_y, double scale_z) = 0;
+
+        virtual void render(std::array<double, 16> &camera) = 0;
     };
 }
 

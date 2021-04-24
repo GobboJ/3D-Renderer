@@ -26,6 +26,6 @@ Camera::Camera(double verticalFieldOfView, double nearPlane, double farPlane, co
 }
 
 
-const std::array<double, 16> &Camera::getViewMatrix() const {
+std::array<double, 16> Camera::getViewMatrix() const {
     return viewMatrix;
 }

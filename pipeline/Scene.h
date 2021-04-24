@@ -14,16 +14,20 @@ template<class target_t>
 class Scene {
 
 private:
-    std::vector<std::tuple<Object, Vector3, Vector3>> objects;
+    std::vector<Object> objects;
     Camera camera;
 public:
-    const std::vector<std::tuple<Object, Vector3, Vector3>> &getObjects() const {
+    const std::vector<Object> &getObjects() const {
         return objects;
     }
 
-public:
-    Scene(std::vector<std::tuple<Object, Vector3, Vector3>> objects, const Camera &camera) : objects(
+    Scene(std::vector<Object> &objects, const Camera &camera) : objects(
             std::move(objects)), camera(camera) {}
+
+    std::array<double, 16> getViewMatrix() const {
+        return camera.getViewMatrix();
+    }
+
 };
 
 
