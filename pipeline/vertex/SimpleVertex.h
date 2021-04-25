@@ -25,6 +25,9 @@ public:
     double getZ() const;
 
     SimpleVertex transform(std::array<double, 16> matrix) const;
+
+    private:
+    inline double multiply(std::array<double, 16> matrix, const int index) const;
 };
 
 #endif //INC_3D_RENDERER_SIMPLEVERTEX_H

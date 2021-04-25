@@ -11,6 +11,7 @@
 class Camera {
 private:
     std::array<double, 16> viewMatrix{};
+
     double verticalFieldOfView;
     double nearPlane;
     double farPlane;
@@ -21,8 +22,8 @@ public:
      * Creates a new look-at camera.
      *
      * @param verticalFieldOfView Vertical FOV of the camera
-     * @param nearPlane Near projection plane
-     * @param farPlane Far projection plane
+     * @param nearPlane Near projection plane. It must be positive.
+     * @param farPlane Far projection plane. It must be positive.
      * @param position Position of the camera.
      * @param target Point the camera will look at.
      * @param up_vector Vector describing the up direction. By default it is the vector <code>[0, 1, 0]</code>.
@@ -48,7 +49,13 @@ public:
      * Returns the generated view matrix
      * @return the generated view matrix
      */
-    std::array<double, 16> getViewMatrix() const;
+    const std::array<double, 16> &getViewMatrix() const;
+
+    double getNearPlane() const;
+
+    double getFarPlane() const;
+
+    double getVerticalFieldOfView() const;
 };
 
 #endif //INC_3D_RENDERER_CAMERA_H

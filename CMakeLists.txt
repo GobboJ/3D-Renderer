@@ -16,4 +16,4 @@ add_executable(3D_Renderer main.cpp
         pipeline/util/Vector3.cpp
         pipeline/util/Vector3.h
         pipeline/Pipeline.cpp
-        pipeline/Pipeline.h)
+        pipeline/Pipeline.h pipeline/util/Utils.h)

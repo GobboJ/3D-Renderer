@@ -42,6 +42,7 @@ namespace Object_private {
 
         }
 
+        /*
         void computeWorldMatrix() {
 
             double CONV = M_PI / 180;
@@ -65,6 +66,41 @@ namespace Object_private {
                     0, 0, 0, 1
             };
         }
+        */
+        void computeWorldMatrix() {
+            const double CONV = M_PI / 180;
+
+            double sx = scale.getX();
+            double sy = scale.getY();
+            double sz = scale.getZ();
+            double rx = rotation.getX() * CONV;
+            double ry = rotation.getY() * CONV;
+            double rz = rotation.getZ() * CONV;
+            double sin_rx = sin(rx);
+            double sin_ry = sin(ry);
+            double sin_rz = sin(rz);
+            double cos_rx = cos(rx);
+            double cos_ry = cos(ry);
+            double cos_rz = cos(rz);
+            double tx = position.getX();
+            double ty = position.getY();
+            double tz = position.getZ();
+
+            /*world = {
+                    sx * cos(ry) * cos(rz), sy * (sin(rx) * sin(ry) * cos(rz) + cos(rx) * sin(rz)),
+                    sz * (-cos(rx) * sin(ry) * cos(rz) + sin(rx) * sin(rz)), tx,
+                    sx * -cos(ry) * sin(rz), sy * (cos(rx) * cos(rz) - sin(rx) * sin(ry) * sin(rz)),
+                    sz * (cos(rx) * sin(ry) * sin(rz) + sin(rx) * cos(rz)), ty,
+                    -sx * sin(ry), sy * -sin(rx) * cos(ry), sz * cos(rx) * cos(ry), tz,
+                    0, 0, 0, 1
+            };*/
+            world = {
+                    sx * cos_ry * cos_rz, -sy * cos_ry * sin_rz, sz * sin_ry, tx,
+                    sx * (sin_rx * sin_ry * cos_rz + cos_rx * sin_rz), sy * (cos_rx * cos_rz - sin_rx * sin_ry * sin_rz), -sz*sin_rx*cos_ry, ty,
+                    sx*(sin_rx * sin_rz - cos_rx * sin_ry * cos_rz), sy*(cos_rx*sin_ry*sin_rz + sin_rx*cos_rz), sz*cos_rx*cos_ry, tz,
+                    0, 0, 0, 1
+            };
+        }
 
         void setPosition(const double x, const double y, const double z) override {
             position = {x, y, z};
@@ -85,6 +121,7 @@ namespace Object_private {
 
         /*
             a, b, c = scala
+            // ----> d, e, f = angoli
             d, f, i = cos(alpha)
             e, g, h = sin(alpha)
             j, k, l = traslazione
@@ -116,7 +153,7 @@ namespace Object_private {
          * indeces[0].x ...
          */
 
-        void render(std::array<double, 16> &camera) override {
+        void render(const std::array<double, 16> &cameraMatrix, std::array<double, 16> &projectionMatrix) override {
             for (auto &v : mesh.indices) {
                 auto v1 = mesh.vertices[v[0]];
                 auto v2 = mesh.vertices[v[1]];
@@ -124,9 +161,9 @@ namespace Object_private {
 
                 // Model -> World -> Camera View
                 // Scale -> Rotate -> Translate
-                auto camera_v1 = v1.transform(world).transform(camera);
-                auto camera_v2 = v2.transform(world).transform(camera);
-                auto camera_v3 = v3.transform(world).transform(camera);
+                auto proj_v1 = v1.transform(world).transform(cameraMatrix).transform(projectionMatrix);
+                auto proj_v2 = v2.transform(world).transform(cameraMatrix).transform(projectionMatrix);
+                auto proj_v3 = v3.transform(world).transform(cameraMatrix).transform(projectionMatrix);
             }
         }
 

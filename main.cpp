@@ -42,9 +42,9 @@ int main() {
                                {1, 2, 3}});
     Object o1(m1, &shader);
     Object o2(m2, &shader2);
-    o1.setPosition(1, 1, 1);
-    o1.setScale(2, 2, 2);
-    o1.setRotation(90, 90, 90);
+    o1.setPosition(1, 2, 3);
+    o1.setScale(2, 3, 1);
+    o1.setRotation(10, 20, 30);
 //    std::vector<Object> objs;
 //    objs.push_back(std::move(o1));
 //    objs.push_back(std::move(o2));

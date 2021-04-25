@@ -3,10 +3,15 @@
 //
 
 #include "Camera.h"
+#include <cmath>
+#include <cassert>
 
 Camera::Camera(double verticalFieldOfView, double nearPlane, double farPlane, const Vector3 &position,
                const Vector3 &target, const Vector3 &up_vector) : verticalFieldOfView(verticalFieldOfView),
                                                                   nearPlane(nearPlane), farPlane(farPlane) {
+    assert (nearPlane >= 0);
+    assert (farPlane >= 0 && nearPlane <= farPlane);
+
     Vector3 v = (position - target);
     v = v / v.norm();
     Vector3 r = (v.cross(up_vector));
@@ -17,6 +22,9 @@ Camera::Camera(double verticalFieldOfView, double nearPlane, double farPlane, co
                   u.getX(), u.getY(), u.getZ(), -(position.dot(u)),
                   v.getX(), v.getY(), v.getZ(), -(position.dot(v)),
                   0, 0, 0, 1};
+
+
+
 }
 
 Camera::Camera(double verticalFieldOfView, double nearPlane, double farPlane, const Vector3 &position, double pitch,
@@ -25,7 +33,18 @@ Camera::Camera(double verticalFieldOfView, double nearPlane, double farPlane, co
     throw 0;
 }
 
+double Camera::getVerticalFieldOfView() const {
+    return verticalFieldOfView;
+}
 
-std::array<double, 16> Camera::getViewMatrix() const {
+const std::array<double, 16> &Camera::getViewMatrix() const {
     return viewMatrix;
+}
+
+double Camera::getNearPlane() const {
+    return nearPlane;
+}
+
+double Camera::getFarPlane() const {
+    return farPlane;
 }

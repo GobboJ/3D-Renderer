@@ -24,8 +24,8 @@ public:
     Scene(std::vector<Object> &objects, const Camera &camera) : objects(
             std::move(objects)), camera(camera) {}
 
-    std::array<double, 16> getViewMatrix() const {
-        return camera.getViewMatrix();
+    const Camera &getCamera() const {
+        return camera;
     }
 
 };

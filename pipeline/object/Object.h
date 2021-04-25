@@ -49,8 +49,8 @@ public:
         pimpl->setScale(scale_x, scale_y, scale_z);
     }
 
-    void render(std::array<double, 16> camera) const {
-        pimpl->render(camera);
+    void render(const std::array<double, 16> &cameraMatrix, std::array<double, 16> projectionMatrix) const {
+        pimpl->render(cameraMatrix, projectionMatrix);
     }
 
     /*

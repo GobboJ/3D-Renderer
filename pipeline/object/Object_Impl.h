@@ -17,7 +17,7 @@ namespace Object_private {
 
         virtual void setScale(double scale_x, double scale_y, double scale_z) = 0;
 
-        virtual void render(std::array<double, 16> &camera) = 0;
+        virtual void render(const std::array<double, 16> &cameraMatrix, std::array<double, 16> &projectionMatrix) = 0;
     };
 }
 
