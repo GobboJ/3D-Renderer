@@ -20,7 +20,7 @@ struct Mesh {
     std::vector<SimpleVertex> vertices;
     std::vector<std::array<int, 3>> indices;
 
-    Mesh(std::vector<SimpleVertex> vertices, std::vector<std::array<int, 3>> indices) : vertices(std::move(vertices)),
+    Mesh(const std::vector<SimpleVertex> vertices, const std::vector<std::array<int, 3>> indices) : vertices(std::move(vertices)),
                                                                                         indices(std::move(indices)) {}
 };
 
@@ -28,17 +28,17 @@ int main() {
 
     // Tests
 
-    SimpleVertex v1(0, 0, 0);
-    SimpleVertex v2(1, 1, 1);
-    SimpleVertex v3(2, 2, 2);
-    SimpleVertex v4(3, 3, 3);
-    SimpleVertex v5(4, 4, 4);
-    Camera c(45.0f, 1, 2, {1, 1, 1}, {0, 0, -10});
+    const SimpleVertex v1(0, 0, 0);
+    const SimpleVertex v2(1, 1, 1);
+    const SimpleVertex v3(2, 2, 2);
+    const SimpleVertex v4(3, 3, 3);
+    const SimpleVertex v5(4, 4, 4);
+    const Camera c(45.0f, 1, 2, {1, 1, 1}, {0, 0, -10});
 
     // Objects tests
-    Mesh m1({v1, v2, v3, v4}, {{0, 1, 2},
+    const Mesh m1({v1, v2, v3, v4}, {{0, 1, 2},
                                {1, 2, 3}});
-    Mesh m2({v1, v3, v4, v5}, {{0, 1, 2},
+    const Mesh m2({v1, v3, v4, v5}, {{0, 1, 2},
                                {1, 2, 3}});
     Object o1(m1, &shader);
     Object o2(m2, &shader2);

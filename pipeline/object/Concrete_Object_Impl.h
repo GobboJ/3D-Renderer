@@ -30,15 +30,15 @@ namespace Object_private {
     public:
 
         Concrete_Object_Impl(M &&mesh, S &&shader) : mesh(std::forward<M>(mesh)),
-                                                     shader(std::forward<S>(shader)),
-                                                     textures(std::forward<T>(textures) ...),
-                                                     position(0, 0, 0),
-                                                     rotation(0, 0, 0),
-                                                     scale(1, 1, 1),
-                                                     world({1., 0., 0., 0.,
-                                                            0., 1., 0., 0.,
-                                                            0., 0., 1., 0.,
-                                                            0., 0., 0., 1.}) {
+                                                                 shader(std::forward<S>(shader)),
+                                                                 textures(std::forward<T>(textures) ...),
+                                                                 position(0, 0, 0),
+                                                                 rotation(0, 0, 0),
+                                                                 scale(1, 1, 1),
+                                                                 world({1., 0., 0., 0.,
+                                                                        0., 1., 0., 0.,
+                                                                        0., 0., 1., 0.,
+                                                                        0., 0., 0., 1.}) {
 
         }
 
@@ -96,8 +96,10 @@ namespace Object_private {
             };*/
             world = {
                     sx * cos_ry * cos_rz, -sy * cos_ry * sin_rz, sz * sin_ry, tx,
-                    sx * (sin_rx * sin_ry * cos_rz + cos_rx * sin_rz), sy * (cos_rx * cos_rz - sin_rx * sin_ry * sin_rz), -sz*sin_rx*cos_ry, ty,
-                    sx*(sin_rx * sin_rz - cos_rx * sin_ry * cos_rz), sy*(cos_rx*sin_ry*sin_rz + sin_rx*cos_rz), sz*cos_rx*cos_ry, tz,
+                    sx * (sin_rx * sin_ry * cos_rz + cos_rx * sin_rz),
+                    sy * (cos_rx * cos_rz - sin_rx * sin_ry * sin_rz), -sz * sin_rx * cos_ry, ty,
+                    sx * (sin_rx * sin_rz - cos_rx * sin_ry * cos_rz),
+                    sy * (cos_rx * sin_ry * sin_rz + sin_rx * cos_rz), sz * cos_rx * cos_ry, tz,
                     0, 0, 0, 1
             };
         }
@@ -153,7 +155,8 @@ namespace Object_private {
          * indeces[0].x ...
          */
 
-        void render(const std::array<double, 16> &cameraMatrix, std::array<double, 16> &projectionMatrix) override {
+        void
+        render(const std::array<double, 16> &cameraMatrix, const std::array<double, 16> &projectionMatrix) override {
             for (auto &v : mesh.indices) {
                 auto v1 = mesh.vertices[v[0]];
                 auto v2 = mesh.vertices[v[1]];

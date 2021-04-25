@@ -25,7 +25,7 @@ public:
     Object(Object &&) = default;
 
     template<class M, class S, class... T>
-    Object(M &&mesh, S &&shader, T &&... textures) :
+    Object(M &&mesh, S &&shader, const T &&... textures) :
             pimpl(std::make_unique<Concrete_Object_Impl<M, S>>(std::forward<M>(mesh), std::forward<S>(
                     shader), std::forward<T>(textures) ...)) {
 
@@ -49,7 +49,7 @@ public:
         pimpl->setScale(scale_x, scale_y, scale_z);
     }
 
-    void render(const std::array<double, 16> &cameraMatrix, std::array<double, 16> projectionMatrix) const {
+    void render(const std::array<double, 16> &cameraMatrix, const std::array<double, 16> projectionMatrix) const {
         pimpl->render(cameraMatrix, projectionMatrix);
     }
 

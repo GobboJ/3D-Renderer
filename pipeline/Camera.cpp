@@ -6,7 +6,7 @@
 #include <cmath>
 #include <cassert>
 
-Camera::Camera(double verticalFieldOfView, double nearPlane, double farPlane, const Vector3 &position,
+Camera::Camera(const double verticalFieldOfView, const double nearPlane, const double farPlane, const Vector3 &position,
                const Vector3 &target, const Vector3 &up_vector) : verticalFieldOfView(verticalFieldOfView),
                                                                   nearPlane(nearPlane), farPlane(farPlane) {
     assert (nearPlane >= 0);
@@ -24,11 +24,11 @@ Camera::Camera(double verticalFieldOfView, double nearPlane, double farPlane, co
                   0, 0, 0, 1};
 
 
-
 }
 
-Camera::Camera(double verticalFieldOfView, double nearPlane, double farPlane, const Vector3 &position, double pitch,
-               double yaw) {
+Camera::Camera(const double verticalFieldOfView, const double nearPlane, const double farPlane, const Vector3 &position,
+               const double pitch,
+               const double yaw) {
     // TODO To be implemented
     throw 0;
 }
