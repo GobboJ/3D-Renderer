@@ -63,3 +63,7 @@ Complete the pipeline:
 - https://stackoverflow.com/questions/24441631/how-exactly-does-opengl-do-perspectively-correct-linear-interpolation
 - https://www.3dgep.com/understanding-the-view-matrix/
 - http://www.songho.ca/opengl/
+- https://en.wikibooks.org/wiki/GLSL_Programming/Rasterization
+- https://joshbeam.com/articles/triangle_rasterization/
+- https://www.youtube.com/watch?v=S3EVSxtsRl0
+- https://www.khronos.org/registry/OpenGL/specs/gl/glspec44.core.pdf pag 427 IMPORTANTE

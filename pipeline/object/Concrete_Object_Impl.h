@@ -13,7 +13,17 @@
 #ifndef INC_3D_RENDERER_CONCRETE_OBJECT_IMPL_H
 #define INC_3D_RENDERER_CONCRETE_OBJECT_IMPL_H
 
+
+
+
 namespace Object_private {
+
+    struct bounding_box{
+        double left;
+        double right;
+        double bottom;
+        double top;
+    };
 
     template<class M, class S, class ...T>
     class Concrete_Object_Impl : public Object_Impl {
@@ -30,15 +40,15 @@ namespace Object_private {
     public:
 
         Concrete_Object_Impl(M &&mesh, S &&shader) : mesh(std::forward<M>(mesh)),
-                                                                 shader(std::forward<S>(shader)),
-                                                                 textures(std::forward<T>(textures) ...),
-                                                                 position(0, 0, 0),
-                                                                 rotation(0, 0, 0),
-                                                                 scale(1, 1, 1),
-                                                                 world({1., 0., 0., 0.,
-                                                                        0., 1., 0., 0.,
-                                                                        0., 0., 1., 0.,
-                                                                        0., 0., 0., 1.}) {
+                                                     shader(std::forward<S>(shader)),
+                                                     textures(std::forward<T>(textures) ...),
+                                                     position(0, 0, 0),
+                                                     rotation(0, 0, 0),
+                                                     scale(1, 1, 1),
+                                                     world({1., 0., 0., 0.,
+                                                            0., 1., 0., 0.,
+                                                            0., 0., 1., 0.,
+                                                            0., 0., 0., 1.}) {
 
         }
 
@@ -155,8 +165,46 @@ namespace Object_private {
          * indeces[0].x ...
          */
 
-        void
-        render(const std::array<double, 16> &cameraMatrix, const std::array<double, 16> &projectionMatrix) override {
+        void viewportMapping(const std::array<double, 16> &viewportMatrix, std::array<double, 3> &v) {
+            v[0] = v[0] * viewportMatrix[0] + viewportMatrix[3];
+            v[1] = v[1] * viewportMatrix[5] + viewportMatrix[7];
+            v[2] = v[2] * viewportMatrix[10] + viewportMatrix[11];
+        }
+
+        /**
+* Computes the bounding box
+*
+*/
+        bounding_box compute_box(const std::array<double, 3> &v1, const std::array<double, 3> &v2, const std::array<double, 3> &v3) {
+            std::pair<double, double> lr = std::minmax({v1[0], v2[0], v3[0]});
+            std::pair<double, double> tb = std::minmax({v1[1], v2[1], v3[1]});
+            return bounding_box({lr.first, lr.second, tb.second, tb.first});
+        }
+
+/**
+ * Computes the triangle area (for barycentric coordinates)
+ *
+ */
+        double triangle_area(const std::array<double, 3> &v1, const std::array<double, 3> &v2, double x, double y) {
+            return ((v1[1]-v2[1])*x - (v1[0]-v2[0])*y + v1[0]*v2[1] - v2[0]*v1[1]);
+        }
+
+/**
+ * Tests if pixel is inside a triangle
+ *
+ */
+        bool inside_test(double A1, double A2, double A3, double sum) {
+            return (A1/sum >= 0 && A1/sum <= 1) && (A2/sum >= 0 && A2/sum <= 1) && (A3/sum >= 0 && A3/sum <= 1);
+        }
+
+        void render(const std::array<double, 16> &cameraMatrix, const std::array<double, 16> &projectionMatrix,
+                    const std::array<double, 16> &viewportMatrix) override {
+
+            std::array<double, 3> proj_v1{};
+            std::array<double, 3> proj_v2{};
+            std::array<double, 3> proj_v3{};
+            double w1, w2, w3;
+
             for (auto &v : mesh.indices) {
                 auto v1 = mesh.vertices[v[0]];
                 auto v2 = mesh.vertices[v[1]];
@@ -164,9 +212,36 @@ namespace Object_private {
 
                 // Model -> World -> Camera View
                 // Scale -> Rotate -> Translate
-                auto proj_v1 = v1.transform(world).transform(cameraMatrix).transform(projectionMatrix);
-                auto proj_v2 = v2.transform(world).transform(cameraMatrix).transform(projectionMatrix);
-                auto proj_v3 = v3.transform(world).transform(cameraMatrix).transform(projectionMatrix);
+                auto ndc_v1 = v1.transform(world).transform(cameraMatrix);
+                auto ndc_v2 = v2.transform(world).transform(cameraMatrix);
+                auto ndc_v3 = v3.transform(world).transform(cameraMatrix);
+
+                w1 = ndc_v1.project(projectionMatrix, proj_v1);
+                w2 = ndc_v2.project(projectionMatrix, proj_v2);
+                w3 = ndc_v3.project(projectionMatrix, proj_v3);
+
+                viewportMapping(viewportMatrix, proj_v1);
+                viewportMapping(viewportMatrix, proj_v2);
+                viewportMapping(viewportMatrix, proj_v3);
+
+                bounding_box box = compute_box(proj_v1, proj_v2, proj_v3);
+
+                for (int r = std::lround(box.top); r < box.bottom; r++) {
+                    for (int c = std::lround(box.left); c < box.right; c++) {
+                        // Computes barycentric coordinates
+                        double A1 = 0.5 * triangle_area(proj_v3, proj_v2, c, r);
+                        double A2 = 0.5 * triangle_area(proj_v1, proj_v3, c, r);
+                        double A3 = 0.5 * triangle_area(proj_v2, proj_v1, c, r);
+                        double sum = A1 + A2 + A3;
+
+                        if (inside_test(A1, A2, A3, sum)) {
+                            int a = 1;
+                            // ZBuffer Test ... Come ?
+                        }
+                    }
+                }
+
+                int a = 1;
             }
         }
 
@@ -174,5 +249,10 @@ namespace Object_private {
     };
 
 }
+
+
+
+
+
 
 #endif //INC_3D_RENDERER_CONCRETE_OBJECT_IMPL_H

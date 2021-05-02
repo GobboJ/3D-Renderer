@@ -26,8 +26,11 @@ public:
 
     const SimpleVertex transform(std::array<double, 16> matrix) const;
 
+    double project(std::array<double, 16> projectionMatrix, std::array<double, 3> &v) const;
+
 private:
     inline double multiply(std::array<double, 16> matrix, int index) const;
+
 };
 
 #endif //INC_3D_RENDERER_SIMPLEVERTEX_H

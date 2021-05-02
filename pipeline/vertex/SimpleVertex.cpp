@@ -31,3 +31,11 @@ inline double SimpleVertex::multiply(const std::array<double, 16> matrix, const 
 
     return matrix[index] * x + matrix[index + 1] * y + matrix[index + 2] * z + matrix[index + 3];
 }
+
+double SimpleVertex::project(std::array<double, 16> projectionMatrix, std::array<double, 3> &v) const {
+    double w = multiply(projectionMatrix, 12);
+    v[0] = multiply(projectionMatrix, 0) / w;
+    v[1] = multiply(projectionMatrix, 4) / w;
+    v[2] = multiply(projectionMatrix, 8) / w;
+    return w;
+}

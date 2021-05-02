@@ -20,31 +20,25 @@ struct Mesh {
     std::vector<SimpleVertex> vertices;
     std::vector<std::array<int, 3>> indices;
 
-    Mesh(const std::vector<SimpleVertex> vertices, const std::vector<std::array<int, 3>> indices) : vertices(std::move(vertices)),
+    Mesh(std::vector<SimpleVertex> vertices, std::vector<std::array<int, 3>> indices) : vertices(std::move(vertices)),
                                                                                         indices(std::move(indices)) {}
 };
 
 int main() {
 
-    // Tests
 
-    const SimpleVertex v1(0, 0, 0);
-    const SimpleVertex v2(1, 1, 1);
-    const SimpleVertex v3(2, 2, 2);
-    const SimpleVertex v4(3, 3, 3);
-    const SimpleVertex v5(4, 4, 4);
-    const Camera c(45.0f, 1, 2, {1, 1, 1}, {0, 0, -10});
+    const Mesh cube({{1,  -1, 1.5},
+               {1,  1,  1.1},
+               {-1, 1,  1.5},
+               {-1, -1, 1.9}}, {{0, 1, 2},
+                                {0, 2, 3}});
 
-    // Objects tests
-    const Mesh m1({v1, v2, v3, v4}, {{0, 1, 2},
-                               {1, 2, 3}});
-    const Mesh m2({v1, v3, v4, v5}, {{0, 1, 2},
-                               {1, 2, 3}});
-    Object o1(m1, &shader);
-    Object o2(m2, &shader2);
-    o1.setPosition(1, 2, 3);
-    o1.setScale(2, 3, 1);
-    o1.setRotation(10, 20, 30);
+    const Camera c(45.0f, 1, 10, {1, 0, 0}, {1, 0, -5});
+
+    Object o1(cube, &shader);
+    o1.setPosition(1, 0, -5);
+    o1.setScale(1, 1, 1);
+    o1.setRotation(0, 0, 0);
 //    std::vector<Object> objs;
 //    objs.push_back(std::move(o1));
 //    objs.push_back(std::move(o2));
@@ -54,8 +48,8 @@ int main() {
 
     // TODO: Da decidere rotazione in angoli o 3 vettori
     std::vector<Object> objs;
-    objs.emplace_back(std::move(o1));//, Vector3(0,0,0), Vector3(0,0,0)));
-    objs.emplace_back(std::move(o2));//, Vector3(0,1,3), Vector3(0,0,0)));
+    objs.emplace_back(std::move(o1));
+
     Scene<char> s(objs, c);
 
     char *target = new char[150 * 50];
