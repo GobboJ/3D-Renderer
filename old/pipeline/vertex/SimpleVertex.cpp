@@ -4,6 +4,7 @@
 
 #include "SimpleVertex.h"
 
+
 SimpleVertex::SimpleVertex(double x, double y, double z) : x(x), y(y), z(z) {}
 
 double SimpleVertex::getX() const {

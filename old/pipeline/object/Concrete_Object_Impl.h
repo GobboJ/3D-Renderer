@@ -216,6 +216,10 @@ namespace Object_private {
                 auto ndc_v2 = v2.transform(world).transform(cameraMatrix);
                 auto ndc_v3 = v3.transform(world).transform(cameraMatrix);
 
+                // V copy = v1.copy();
+                // V::transform(world, copy);
+                // V::transform(camera, copy);
+
                 w1 = ndc_v1.project(projectionMatrix, proj_v1);
                 w2 = ndc_v2.project(projectionMatrix, proj_v2);
                 w3 = ndc_v3.project(projectionMatrix, proj_v3);

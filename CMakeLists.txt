@@ -3,17 +3,23 @@ project(3D_Renderer)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(3D_Renderer main.cpp
-        pipeline/object/Object.cpp
-        pipeline/object/Object.h
-        pipeline/vertex/SimpleVertex.cpp
-        pipeline/vertex/SimpleVertex.h pipeline/Scene.cpp
-        pipeline/Scene.h
-        pipeline/object/Object_Impl.h
-        pipeline/object/Concrete_Object_Impl.h
-        pipeline/Camera.cpp
-        pipeline/Camera.h
-        pipeline/util/Vector3.cpp
-        pipeline/util/Vector3.h
-        pipeline/Pipeline.cpp
-        pipeline/Pipeline.h pipeline/util/Utils.h)
+add_executable(3D_Renderer
+        src/main.cpp
+        src/pipeline/Pipeline.cpp
+        src/pipeline/Pipeline.h
+        src/pipeline/Camera.cpp
+        src/pipeline/Camera.h
+        src/pipeline/Scene.cpp
+        src/pipeline/Scene.h
+        src/pipeline/object/Object.cpp
+        src/pipeline/object/Object.h
+        src/pipeline/object/ObjectInfo.cpp
+        src/pipeline/object/ObjectInfo.h
+        src/pipeline/util/Vector3.cpp
+        src/pipeline/util/Vector3.h
+        src/pipeline/DedicatedPipelineImpl.cpp
+        src/pipeline/DedicatedPipelineImpl.h
+        src/pipeline/DedicatedPipeline.cpp
+        src/pipeline/DedicatedPipeline.h
+        src/pipeline/vertex/SimpleVertex.cpp
+        src/pipeline/vertex/SimpleVertex.h)
