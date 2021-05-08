@@ -11,8 +11,17 @@
 #include <iostream>
 #include <string>
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 300
+#define HEIGHT 200
+
+//Using SDL and standard IO
+#include "SDL.h"
+#include<windows.h>
+#include <chrono>
+
+//Screen dimension constants
+const int SCREEN_WIDTH = 300;
+const int SCREEN_HEIGHT = 200;
 
 class TriangleIterator {
 private:
@@ -28,10 +37,12 @@ public:
     typedef value_type &reference;
     typedef std::forward_iterator_tag iterator_category;
 
-    TriangleIterator(const std::vector<SimpleVertex> &triangles, const std::vector<std::array<int,3>> &indices, bool isLast)
+    TriangleIterator(const std::vector<SimpleVertex> &triangles, const std::vector<std::array<int, 3>> &indices,
+                     bool isLast)
             : triangles() {
         for (std::array<int, 3> i : indices) {
-            this->triangles.emplace_back(std::array<SimpleVertex, 3>{triangles[i[0]], triangles[i[1]], triangles[i[2]]});
+            this->triangles.emplace_back(
+                    std::array<SimpleVertex, 3>{triangles[i[0]], triangles[i[1]], triangles[i[2]]});
         }
         next = (isLast) ? this->triangles.size() : 0;
     }
@@ -74,64 +85,225 @@ public:
 struct SimpleShader {
     char operator()(SimpleVertex vertex) {
 
-       // double z = fmod(vertex.getZ(), ((int) vertex.getZ()))*10;
+        // double z = fmod(vertex.getZ(), ((int) vertex.getZ()))*10;
         //return '0' + ((int) z);
         return std::to_string(vertex.getZ())[2];
     }
 };
 
 struct ColorShader {
-    int operator()(SimpleVertex vertex) {
+    Uint32 operator()(SimpleVertex vertex) {
 
         // double z = fmod(vertex.getZ(), ((int) vertex.getZ()))*10;
         //return '0' + ((int) z);
-        return 0;
+        int blue = (int) ((255.0 * (vertex.getZ()))/10);
+        //std::cout << blue << " " << vertex.getZ() << std::endl;
+        // z : x = 10 : 255
+        return (0x00 << 16) | (0x00 << 8) | blue;
     }
 };
 
+template<class T, class S>
+Scene<T> createScene(S &shader, int frame = 0) {
+    /*const SimpleMesh rectangle({{0, 0, 0},
+                                {4, 0, 0},
+                                {0, 2, 0},
+                                {4, 2, 0}}, {{0, 1, 2},
+                                             {1, 3, 2}});*/
 
-int main(int argc, char *argv[]) {
+    const SimpleMesh cube({{1,  1,  -1},
+                           {1,  -1, -1},
+                           {1,  1,  1},
+                           {1,  -1, 1},
+                           {-1, 1,  -1},
+                           {-1, -1, -1},
+                           {-1, 1,  1},
+                           {-1, -1, 1}},
+                          {{4, 2, 0},
+                           {2, 7, 3},
+                           {6, 5, 7},
+                          {1, 7, 5},
+                          {0, 3, 1},
+                          {4, 1, 5},
+                          {4, 6, 2},
+                          {2, 6, 7},
+                          {6, 4, 5},
+                          {1, 3, 7},
+                          {0, 2, 3},
+                          {4, 0, 1}});
 
-    const SimpleMesh cube({{1,  -1, 1.5},
+    //const Camera camera(45.0, 0.1, 10, {1.5, 1.5, 0}, {1.5, 1.5, -16});
+    const Camera camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5});
+
+    //SimpleShader shader{};
+    Object<SimpleMesh, SimpleVertex, S> o(cube /*rectangle*/, shader);
+    o.setPosition(0, 0, -3.5);
+    o.setScale(1, 1, 1);
+    o.setRotation(0, frame  % 360, 0);//frame % 360
+    //std::cout << frame % 360 << std::endl;
+    Scene<T> s(camera);
+    s.add(o);
+
+    return s;
+}
+
+void PrintBoard() {
+    // Position cursor at 0,0
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD coord;
+    coord.X = coord.Y = 0;
+    SetConsoleCursorPosition(console, coord);
+    // Draw the rest of the stuff.
+}
+
+void render_char() {
+    /*const SimpleMesh cube({{1,  -1, 1.5},
                            {1,  1,  1.1},
                            {-1, 1,  1.5},
-                           {-1, -1, 1.9}}, {{0, 1, 2}, {0, 2, 3}});
+                           {-1, -1, 1.9}}, {{0, 1, 2},
+                                            {0, 2, 3}});
 
     const SimpleMesh rectangle({{0, 0, 0},
                                 {4, 0, 0},
                                 {0, 2, 0},
-                                {4, 2, 0}}, {{0, 1, 2}, {1, 3, 2}});
+                                {4, 2, 0}}, {{0, 1, 2},
+                                             {1, 3, 2}});
 
-    const Camera camera(45.0, 0.1, 10, {1.5, 1.5, 0}, {1.5, 1.5, -16});
-
-    SimpleShader shader{};
-    Object<SimpleMesh, SimpleVertex, SimpleShader> o(rectangle, shader);
-    o.setPosition(0, 0, -6);
-    o.setScale(1, 1, 1);
-    o.setRotation(0, 0, 0);
-
-    Scene<char> s(camera);
-    s.add(o);
-
+    const Camera camera(45.0, 0.1, 10, {1.5, 1.5, 0}, {1.5, 1.5, -16});*/
     char target[WIDTH * HEIGHT];
     memset(target, '.', WIDTH * HEIGHT);
-    Pipeline<char> p(target, WIDTH, HEIGHT);
 
+    std::chrono::milliseconds last = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()
+    );
+    for (int frame = 0; frame < 1000000; frame++) {
+        /*SimpleShader shader{};
+        Object<SimpleMesh, SimpleVertex, SimpleShader> o(rectangle, shader);
+        o.setPosition(0, 0, -6);
+        o.setScale(1, 1, 1);
+        o.setRotation(0, 0, 0);
+
+        Scene<char> s(camera);
+        s.add(o);*/
+
+
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::system_clock::now().time_since_epoch()
+        );
+
+        SimpleShader shader{};
+        Scene<char> s = createScene<char>(shader, frame);
+        memset(target, '.', WIDTH * HEIGHT);
+        Pipeline<char> p(target, WIDTH, HEIGHT);
+
+        p.render(s);
+        /*for (std::array<SimpleVertex, 3> triangle : rectangle) {
+            printf("(%.1f %.1f %.1f) (%.1f %.1f %.1f) (%.1f %.1f %.1f)\n", triangle[0].getX(), triangle[0].getY(),
+                   triangle[0].getZ(),
+                   triangle[1].getX(), triangle[1].getY(), triangle[1].getZ(),
+                   triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
+        }*/
+
+        // Prints target
+        /*PrintBoard();
+        for (int r = 0; r < HEIGHT; r++) {
+            for (int c = 0; c < WIDTH; c++) {
+                std::cout << target[r * WIDTH + c];
+            }
+            std::cout << '\n';
+        }*/
+        PrintBoard();
+        std::cout << '\n' << (1000.0 / (ms - last).count());
+        last = ms;
+    }
+}
+
+void render_color(SDL_Surface *screenSurface, int frame, Uint32 *colorTarget) {
+
+    ColorShader shader{};
+    Scene<Uint32> s = createScene<Uint32>(shader, frame);
+    Pipeline<Uint32> p(colorTarget, WIDTH, HEIGHT);
     p.render(s);
-    for (std::array<SimpleVertex, 3> triangle : rectangle) {
-        printf("(%.1f %.1f %.1f) (%.1f %.1f %.1f) (%.1f %.1f %.1f)\n", triangle[0].getX(), triangle[0].getY(),
-               triangle[0].getZ(),
-               triangle[1].getX(), triangle[1].getY(), triangle[1].getZ(),
-               triangle[2].getX(), triangle[2].getY(), triangle[2].getZ());
-    }
 
-    // Prints target
-    for (int r = 0; r < HEIGHT; r++) {
-        for (int c = 0; c < WIDTH; c++) {
-            std::cout << target[r * WIDTH + c];
+    SDL_Rect pixel;
+    pixel.w = 1;
+    pixel.h = 1;
+    for (int y = 0; y < HEIGHT; y++) {
+        for (int x = 0; x < WIDTH; x++) {
+            pixel.x = x;
+            pixel.y = y;
+            if (SDL_FillRect(screenSurface, &pixel, colorTarget[y * WIDTH + x])) {
+                std::cerr << "Error!";
+            }
         }
-        std::cout << '\n';
     }
+}
+
+void render_window() {
+    //Initialize SDL
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+    } else {
+
+        // Create the window The window we'll be rendering to
+        SDL_Window *window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                                              SCREEN_WIDTH,
+                                              SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        if (window == NULL) {
+            printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        } else {
+            //Main loop flag
+            bool quit = false;
+
+            //Event handler
+            SDL_Event e;
+            int frame = 0;
+            unsigned int lastTime = 0;
+            Uint32 *colorTarget = new Uint32[WIDTH * HEIGHT];
+
+            //While application is running
+            while (!quit) {
+                //Handle events on queue
+                while (SDL_PollEvent(&e) != 0) {
+                    //User requests quit
+                    if (e.type == SDL_QUIT) {
+                        quit = true;
+                    }
+                }
+                //Get window surface The surface contained by the window
+                SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
+                //Fill the surface white
+                SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
+                for (int y = 0; y < HEIGHT; y++) {
+                    for (int x = 0; x < WIDTH; x++) {
+                        colorTarget[y * WIDTH + x] = (0xFF << 16) | (0xFF << 8) | 0xFF;
+                    }
+                }
+                render_color(screenSurface, frame, colorTarget);
+                unsigned int currentTime = SDL_GetTicks();
+                // 10ms : 1 = 1000ms : x
+
+                SDL_SetWindowTitle(window, (std::to_string(1000.0 / (currentTime - lastTime)) + " fps").c_str());
+
+                lastTime = currentTime;
+                frame++;
+                // Update the surface
+                SDL_UpdateWindowSurface(window);
+            }
+
+
+        }
+        // Destroy window
+        SDL_DestroyWindow(window);
+        // Quit SDL subsystems
+        SDL_Quit();
+    }
+}
+
+int main(int argc, char *argv[]) {
+
+    render_window();
+    //render_char();
 
     return 0;
 }

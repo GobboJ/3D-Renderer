@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 project(3D_Renderer)
 
+set(SDL2_DIR ./include/SDL2-2.0.14)
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(3D_Renderer
@@ -23,3 +27,5 @@ add_executable(3D_Renderer
         src/pipeline/DedicatedPipeline.h
         src/pipeline/vertex/SimpleVertex.cpp
         src/pipeline/vertex/SimpleVertex.h)
+
+target_link_libraries(3D_Renderer ${SDL2_LIBRARIES})

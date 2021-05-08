@@ -54,24 +54,26 @@ public:
 
             for (int r = std::lround(box.top); r < box.bottom; r++) {
                 for (int c = std::lround(box.left); c < box.right; c++) {
-                    // Computes barycentric coordinates
-                    double A1 = 0.5 * triangle_area(triangle[2], triangle[1], c, r);
-                    double A2 = 0.5 * triangle_area(triangle[0], triangle[2], c, r);
-                    double A3 = 0.5 * triangle_area(triangle[1], triangle[0], c, r);
-                    double sum = A1 + A2 + A3;
+                    if (r > 0 && r < height && c > 0 && c < width) {
+                        // Computes barycentric coordinates
+                        double A1 = 0.5 * triangle_area(triangle[2], triangle[1], c, r);
+                        double A2 = 0.5 * triangle_area(triangle[0], triangle[2], c, r);
+                        double A3 = 0.5 * triangle_area(triangle[1], triangle[0], c, r);
+                        double sum = A1 + A2 + A3;
 
-                    if (inside_test(A1, A2, A3, sum)) {
-                        // Z-Buffer testing
-                        double z = 1.0 / (triangle[0].getZ() * A1 + triangle[1].getZ() * A2 + triangle[2].getZ() * A3);
+                        if (inside_test(A1, A2, A3, sum)) {
+                            // Z-Buffer testing
+                            double z = 1.0 / (triangle[0].getZ() * A1 + triangle[1].getZ() * A2 + triangle[2].getZ() * A3);
 
-                        if (z < z_buffer[r * width + c]) {
-                            // Interpolates the vertex
-                            Vertex interpolated = Vertex::interpolate(triangle[0], triangle[1], triangle[2], A1,
-                                                                      A2, A3, w1, w2, w3);
-                            // Calls the fragment SimpleShader
-                            target[r * width + c] = shader(interpolated);
-                            // Updates Z-Buffer
-                            z_buffer[r * width + c] = z;
+                            if (z < z_buffer[r * width + c]) {
+                                // Interpolates the vertex
+                                Vertex interpolated = Vertex::interpolate(triangle[0], triangle[1], triangle[2], A1,
+                                                                          A2, A3, w1, w2, w3);
+                                // Calls the fragment SimpleShader
+                                target[r * width + c] = shader(interpolated);
+                                // Updates Z-Buffer
+                                z_buffer[r * width + c] = z;
+                            }
                         }
                     }
                 }
