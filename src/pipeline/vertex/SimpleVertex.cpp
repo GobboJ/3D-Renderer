@@ -53,49 +53,50 @@ void SimpleVertex::viewportMapping(const std::array<double, 16> &viewportMatrix)
     z = z * viewportMatrix[10] + viewportMatrix[11];
 }
 
-/*
 SimpleVertex
 SimpleVertex::interpolate(const SimpleVertex &v1, const SimpleVertex &v2, const SimpleVertex &v3, const double A1,
                           const double A2, const double A3, const double w0, const double w1, const double w2) {
     const double sum = A1 + A2 + A3;
 
     Vector3 v1Pos = {v1.getX(), v1.getY(), v1.getZ()};
-    Vector3 v2Pos = {v2.getX(), v2.getY(), v3.getZ()};
+    Vector3 v2Pos = {v2.getX(), v2.getY(), v2.getZ()};
     Vector3 v3Pos = {v3.getX(), v3.getY(), v3.getZ()};
 
     Vector3 pos = (A1 / sum) * v1Pos + (A2 / sum) * v2Pos + (A3 / sum) * v3Pos;
+    double z_correction =
+           (A1 / sum) * v1.getZ() + (A2 / sum) * v2.getZ() + (A3 / sum) * v3.getZ(); // ?? E' sempre uguale a pos.z
 
-    *Vector3 norm = ((A1 / sum) / pos.getZ() * v1.getNorm() + (A2 / sum) / pos.getZ() * v2.getNorm() +
-                    (A3 / sum) / pos.getZ() * v3.getNorm()) /
-                   ((A1 / sum) / pos.getZ() + (A2 / sum) / pos.getZ() + (A3 / sum) / pos.getZ());
-    Vector2 uv = ((A1 / sum) / pos.getZ() * v1.getUv() + (A2 / sum) / pos.getZ() * v2.getUv() +
-                  (A3 / sum) / pos.getZ() * v3.getUv()) /
-                 ((A1 / sum) / pos.getZ() + (A2 / sum) / pos.getZ() + (A3 / sum) / pos.getZ());*
+    double a = (A1 / sum);
+    double b = (A2 / sum);
+    double c = (A3 / sum);
 
-    return {pos.getX(), pos.getY(), pos.getZ()};
-}*/
+    auto rV1 = static_cast<unsigned char> ((v1.getColor() >> 16) & 0xFF);
+    auto gV1 = static_cast<unsigned char> ((v1.getColor() >> 8) & 0xFF);
+    auto bV1 = static_cast<unsigned char> (v1.getColor() & 0xFF);
 
-SimpleVertex
-SimpleVertex::interpolate(const SimpleVertex &v1, const SimpleVertex &v2, const SimpleVertex &v3, const double A1,
-                          const double A2, const double A3, const double w0, const double w1, const double w2) {
-    const double sum = A1 + A2 + A3;
+    auto rV2 = static_cast<unsigned char> ((v2.getColor() >> 16) & 0xFF);
+    auto gV2 = static_cast<unsigned char> ((v2.getColor() >> 8) & 0xFF);
+    auto bV2 = static_cast<unsigned char> (v2.getColor() & 0xFF);
 
-    Vector3 v1Pos = {v1.getX(), v1.getY(), v1.getZ()};
-    Vector3 v2Pos = {v2.getX(), v2.getY(), v3.getZ()};
-    Vector3 v3Pos = {v3.getX(), v3.getY(), v3.getZ()};
+    auto rV3 = static_cast<unsigned char> ((v3.getColor() >> 16) & 0xFF);
+    auto gV3 = static_cast<unsigned char> ((v3.getColor() >> 8) & 0xFF);
+    auto bV3 = static_cast<unsigned char> (v3.getColor() & 0xFF);
 
-    Vector3 pos = (A1 / sum) * v1Pos + (A2 / sum) * v2Pos + (A3 / sum) * v3Pos;
+    unsigned int redColor =
+            (a * rV1 / w0 + b * rV2 / w1 + c * rV3 / w2) / // NOLINT(cppcoreguidelines-narrowing-conversions)
+            (a / w0 + b / w1 + c / w2);
+    unsigned int greenColor =
+            (a * gV1 / w0 + b * gV2 / w1 + c * gV3 / w2) / // NOLINT(cppcoreguidelines-narrowing-conversions)
+            (a / w0 + b / w1 + c / w2);
+    unsigned int blueColor =
+            (a * bV1 / w0 + b * bV2 / w1 + c * bV3 / w2) / // NOLINT(cppcoreguidelines-narrowing-conversions)
+            (a / w0 + b / w1 + c / w2);
 
-    bool wireframe = abs(A1) <= 100 || abs(A2) <= 100 || abs(A3) <= 100;
-    unsigned int color = (v1.getColor() + v2.getColor() + v3.getColor()) / 3;
-    SimpleVertex v = {pos.getX(), pos.getY(), pos.getZ(), color};
-    v.wireframe = wireframe;
+    unsigned int color = (redColor << 16) | (greenColor << 8) | blueColor;
+
+    SimpleVertex v = {pos.getX(), pos.getY(), z_correction, color};
 
     return v;
-}
-
-bool SimpleVertex::isWireframe() const {
-    return wireframe;
 }
 
 unsigned int SimpleVertex::getColor() const {

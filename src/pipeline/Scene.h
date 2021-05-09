@@ -46,7 +46,7 @@ public:
         // Supposes lower-left corner of the viewport as (0,0)
         std::array<double, 16> viewportMatrix = {width / 2.0, 0, 0, width / 2.0,
                                                  0, height / 2.0, 0, height / 2.0,
-                                                 0, 0, -(farPlane - nearPlane) / 2, -(nearPlane + farPlane) / 2, // Modificato segni
+                                                 0, 0, -(farPlane - nearPlane) / 2, -(nearPlane + farPlane) / 2,
                                                  0, 0, 0, 1};
 
         for (auto &pipeline : pipelines) {

@@ -29,52 +29,17 @@ public:
             : mesh(
             mesh), shader(shader), textures(textures), info(info) {}
 
-    void printTriag(Vertex v) {
-        std::cout << "(" << v.getX() << ", " << v.getY() << ", " << v.getZ() << ")";
-    }
 
 public:
     void render(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height,
                 const std::array<double, 16> &viewMatrix,
                 const std::array<double, 16> &projectionMatrix, const std::array<double, 16> &viewportMatrix) override {
 
-        /*for (std::array<Vertex, 3> triangle : mesh) {
-            std::cout << "[";
-            printTriag(triangle[0]);
-            std::cout << ", ";
-            printTriag(triangle[1]);
-            std::cout << ", ";
-            printTriag(triangle[2]);
-            std::cout << "]" << std::endl;
-        }
-        std::cout << std::endl;*/
-
         for (std::array<Vertex, 3> triangle : mesh) {
             // Model to world
-            //std::cout << "[";
-            //printTriag(triangle[0]);
-
             triangle[0].transform(info->getWorldMatrix());
-
-            //std::cout << " --> ";
-            //printTriag(triangle[0]);
-
-            //std::cout << ", ";
-            //printTriag(triangle[1]);
             triangle[1].transform(info->getWorldMatrix());
-
-            //std::cout << " --> ";
-            //printTriag(triangle[1]);
-            //std::cout << ", ";
-            //printTriag(triangle[2]);
-
             triangle[2].transform(info->getWorldMatrix());
-
-
-            /*std::cout << " --> ";
-            printTriag(triangle[2]);
-            std::cout << "]" << std::endl;*/
-
             // World to view
             triangle[0].transform(viewMatrix);
             triangle[1].transform(viewMatrix);
@@ -94,20 +59,20 @@ public:
                 for (int c = std::lround(box.left); c < box.right; c++) {
                     if (r > 0 && r < height && c > 0 && c < width) {
                         // Computes barycentric coordinates
-                        double A1 = 0.5 * triangle_area(triangle[2], triangle[1], c, r);
-                        double A2 = 0.5 * triangle_area(triangle[0], triangle[2], c, r);
-                        double A3 = 0.5 * triangle_area(triangle[1], triangle[0], c, r);
+                        double A1 = triangle_area(triangle[2], triangle[1], c, r);
+                        double A2 = triangle_area(triangle[0], triangle[2], c, r);
+                        double A3 = triangle_area(triangle[1], triangle[0], c, r);
                         double sum = A1 + A2 + A3;
 
                         if (inside_test(A1, A2, A3, sum)) {
                             // Z-Buffer testing
-                            double z = 1.0 / (triangle[0].getZ() * A1 + triangle[1].getZ() * A2 + triangle[2].getZ() * A3);
+                            double z = 1.0 / (triangle[0].getZ() * (A1/sum) + triangle[1].getZ() * (A2/sum) + triangle[2].getZ() * (A3/sum));
 
                             if (z < z_buffer[r * width + c]) {
                                 // Interpolates the vertex
                                 Vertex interpolated = Vertex::interpolate(triangle[0], triangle[1], triangle[2], A1,
                                                                           A2, A3, w1, w2, w3);
-                                // Calls the fragment SimpleShader
+                                // Calls the fragment CharShader
                                 target[r * width + c] = shader(interpolated);
                                 // Updates Z-Buffer
                                 z_buffer[r * width + c] = z;
@@ -116,10 +81,7 @@ public:
                     }
                 }
             }
-
-            int a = 1;
         }
-        int a = 3;
     }
 
 private:
@@ -127,9 +89,13 @@ private:
      * Computes the triangle area (for barycentric coordinates)
      *
      */
-    inline double triangle_area(const Vertex &v1, const Vertex &v2, const double x, const double y) {
-        return ((v1.getY() - v2.getY()) * x - (v1.getX() - v2.getX()) * y + v1.getX() * v2.getY() -
-                v2.getX() * v1.getY());
+    inline double triangle_area(const Vertex &v1, const Vertex &v2, const double Ax, const double Ay) {
+        double Bx = v1.getX();
+        double By = v1.getY();
+        double Cx = v2.getX();
+        double Cy = v2.getY();
+
+        return (Ax * (By - Cy) + Bx * (Cy - Ay) + Cx * (Ay - By)) / 2;
     }
 
     /**

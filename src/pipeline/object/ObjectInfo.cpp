@@ -66,13 +66,4 @@ void ObjectInfo::computeWorldMatrix() {
             sy * (cos_rx * sin_ry * sin_rz + sin_rx * cos_rz), sz * cos_rx * cos_ry, tz,
             0, 0, 0, 1
     };
-    int a = 3;
-
-    //std::array<double, 16> =
-    /*worldMatrix =
-            {cos_ry, 0, sin_ry, tx,
-            0, 1, 0, ty,
-            -sin_ry, 0, cos_ry, tz,
-            0, 0, 0, 1};*/
-
 }

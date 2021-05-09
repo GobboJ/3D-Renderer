@@ -29,10 +29,8 @@ public:
 
     void render(Scene<target_t> &scene) {
 
-
         scene.render(target, z_buffer, width, height);
-
-        memset(z_buffer, 0, width * height);
+        std::fill_n(z_buffer, width * height, 1.0);
     }
 };
 

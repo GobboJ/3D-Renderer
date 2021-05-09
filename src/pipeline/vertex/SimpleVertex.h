@@ -13,7 +13,6 @@ private:
     double x;
     double y;
     double z;
-    bool wireframe;
     unsigned int color;
 
 public:
@@ -24,8 +23,6 @@ public:
     double getY() const;
 
     double getZ() const;
-
-    bool isWireframe() const;
 
     unsigned int getColor() const;
 
