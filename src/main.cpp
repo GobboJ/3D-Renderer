@@ -11,8 +11,8 @@
 #include <iostream>
 #include <string>
 
-#define WIDTH 300
-#define HEIGHT 200
+#define WIDTH 320
+#define HEIGHT 240
 
 //Using SDL and standard IO
 #include "SDL.h"
@@ -20,8 +20,11 @@
 #include <chrono>
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 300;
-const int SCREEN_HEIGHT = 200;
+const int SCREEN_WIDTH = 320;
+const int SCREEN_HEIGHT = 240;
+
+Uint32 BORDER;
+Uint32 OTHER;
 
 class TriangleIterator {
 private:
@@ -99,7 +102,9 @@ struct ColorShader {
         int blue = (int) ((255.0 * (vertex.getZ()))/10);
         //std::cout << blue << " " << vertex.getZ() << std::endl;
         // z : x = 10 : 255
-        return (0x00 << 16) | (0x00 << 8) | blue;
+        //return (vertex.isWireframe()) ? BORDER : OTHER;//
+        //return (0x00 << 16) | (0x00 << 8) | blue;
+        return vertex.getColor();
     }
 };
 
@@ -111,14 +116,14 @@ Scene<T> createScene(S &shader, int frame = 0) {
                                 {4, 2, 0}}, {{0, 1, 2},
                                              {1, 3, 2}});*/
 
-    const SimpleMesh cube({{1,  1,  -1},
-                           {1,  -1, -1},
-                           {1,  1,  1},
-                           {1,  -1, 1},
-                           {-1, 1,  -1},
-                           {-1, -1, -1},
-                           {-1, 1,  1},
-                           {-1, -1, 1}},
+    const SimpleMesh cube({{1,  1,  -1, 0xFF0000},
+                           {1,  -1, -1, 0xFFFF00},
+                           {1,  1,  1, 0xFF00FF},
+                           {1,  -1, 1, 0x0000FF},
+                           {-1, 1,  -1, 0x00FFFF},
+                           {-1, -1, -1, 0x00FF00},
+                           {-1, 1,  1, 0x80FF00},
+                           {-1, -1, 1, 0x808080}},
                           {{4, 2, 0},
                            {2, 7, 3},
                            {6, 5, 7},
@@ -133,13 +138,13 @@ Scene<T> createScene(S &shader, int frame = 0) {
                           {4, 0, 1}});
 
     //const Camera camera(45.0, 0.1, 10, {1.5, 1.5, 0}, {1.5, 1.5, -16});
-    const Camera camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5});
+    const Camera camera(45.0, 0.1, 10, {2, 2, 2}, {2, 2, -3.5});
 
     //SimpleShader shader{};
     Object<SimpleMesh, SimpleVertex, S> o(cube /*rectangle*/, shader);
     o.setPosition(0, 0, -3.5);
-    o.setScale(1, 1, 1);
-    o.setRotation(0, frame  % 360, 0);//frame % 360
+//    o.setScale(1, 1, 1);
+    o.setRotation(0, frame%360, 0);//
     //std::cout << frame % 360 << std::endl;
     Scene<T> s(camera);
     s.add(o);
@@ -260,7 +265,10 @@ void render_window() {
             int frame = 0;
             unsigned int lastTime = 0;
             Uint32 *colorTarget = new Uint32[WIDTH * HEIGHT];
-
+            //Get window surface The surface contained by the window
+            SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
+            BORDER = SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00);
+            OTHER = SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF);
             //While application is running
             while (!quit) {
                 //Handle events on queue
@@ -270,8 +278,7 @@ void render_window() {
                         quit = true;
                     }
                 }
-                //Get window surface The surface contained by the window
-                SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
+
                 //Fill the surface white
                 SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
                 for (int y = 0; y < HEIGHT; y++) {
@@ -279,7 +286,10 @@ void render_window() {
                         colorTarget[y * WIDTH + x] = (0xFF << 16) | (0xFF << 8) | 0xFF;
                     }
                 }
-                render_color(screenSurface, frame, colorTarget);
+                //if (frame == 1) {
+                    render_color(screenSurface, frame, colorTarget);
+                    //quit = true;
+                //}
                 unsigned int currentTime = SDL_GetTicks();
                 // 10ms : 1 = 1000ms : x
 

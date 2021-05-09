@@ -65,7 +65,7 @@ inline Vector3 Vector3::cross(const Vector3 &v) const {
  * @return
  */
 inline double Vector3::dot(const Vector3 &v) const {
-    return x * v.getX() + y * getY() + z * getZ();
+    return x * v.getX() + y * v.getY() + z * v.getZ();
 }
 
 

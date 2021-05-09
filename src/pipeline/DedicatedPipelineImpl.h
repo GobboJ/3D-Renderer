@@ -6,6 +6,7 @@
 #define INC_3D_RENDERER_DEDICATEDPIPELINEIMPL_H
 
 #include <tuple>
+#include <iostream>
 #include "DedicatedPipeline.h"
 #include "object/ObjectInfo.h"
 
@@ -28,15 +29,52 @@ public:
             : mesh(
             mesh), shader(shader), textures(textures), info(info) {}
 
+    void printTriag(Vertex v) {
+        std::cout << "(" << v.getX() << ", " << v.getY() << ", " << v.getZ() << ")";
+    }
+
 public:
     void render(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height,
                 const std::array<double, 16> &viewMatrix,
                 const std::array<double, 16> &projectionMatrix, const std::array<double, 16> &viewportMatrix) override {
+
+        /*for (std::array<Vertex, 3> triangle : mesh) {
+            std::cout << "[";
+            printTriag(triangle[0]);
+            std::cout << ", ";
+            printTriag(triangle[1]);
+            std::cout << ", ";
+            printTriag(triangle[2]);
+            std::cout << "]" << std::endl;
+        }
+        std::cout << std::endl;*/
+
         for (std::array<Vertex, 3> triangle : mesh) {
             // Model to world
+            //std::cout << "[";
+            //printTriag(triangle[0]);
+
             triangle[0].transform(info->getWorldMatrix());
+
+            //std::cout << " --> ";
+            //printTriag(triangle[0]);
+
+            //std::cout << ", ";
+            //printTriag(triangle[1]);
             triangle[1].transform(info->getWorldMatrix());
+
+            //std::cout << " --> ";
+            //printTriag(triangle[1]);
+            //std::cout << ", ";
+            //printTriag(triangle[2]);
+
             triangle[2].transform(info->getWorldMatrix());
+
+
+            /*std::cout << " --> ";
+            printTriag(triangle[2]);
+            std::cout << "]" << std::endl;*/
+
             // World to view
             triangle[0].transform(viewMatrix);
             triangle[1].transform(viewMatrix);
@@ -81,6 +119,7 @@ public:
 
             int a = 1;
         }
+        int a = 3;
     }
 
 private:
