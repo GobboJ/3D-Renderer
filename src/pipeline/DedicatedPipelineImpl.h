@@ -5,6 +5,7 @@
 #ifndef INC_3D_RENDERER_DEDICATEDPIPELINEIMPL_H
 #define INC_3D_RENDERER_DEDICATEDPIPELINEIMPL_H
 
+#include <cmath>
 #include <tuple>
 #include <iostream>
 #include "DedicatedPipeline.h"
@@ -53,6 +54,7 @@ public:
             triangle[1].viewportMapping(viewportMatrix);
             triangle[2].viewportMapping(viewportMatrix);
 
+            /*
             bounding_box box = compute_box(triangle[0], triangle[1], triangle[2]);
 
             for (int r = std::lround(box.top); r < box.bottom; r++) {
@@ -81,10 +83,131 @@ public:
                     }
                 }
             }
+            */
+
+            Vertex &a = triangle[0];
+            Vertex &b = triangle[1];
+            Vertex &c = triangle[2];
+
+            if (a.getY() > c.getY()) {
+                std::swap(a, c);
+            }
+
+            if (a.getY() > b.getY()) {
+                std::swap(a, b);
+            }
+
+            if (b.getY() > c.getY()) {
+                std::swap(b, c);
+            }
+
+            bool isAbVertical = (a.getX() == b.getX());
+            double m_ab = isAbVertical ? 0 : (a.getY() - b.getY()) / (a.getX() - b.getX());
+            bool isBcVertical = (b.getX() == c.getX());
+            double m_bc = isBcVertical ? 0 : (b.getY() - c.getY()) / (b.getX() - c.getX());
+            bool isAcVertical = (a.getX() == c.getX());
+            double m_ac = isAcVertical ? 0 : (a.getY() - c.getY()) / (a.getX() - c.getX());
+
+            double q_ab = isAbVertical ? a.getX() : a.getY() - m_ab * a.getX();
+            double q_bc = isBcVertical ? b.getX() : b.getY() - m_bc * b.getX();
+            double q_ac = isAcVertical ? c.getX() : c.getY() - m_ac * c.getX();
+
+            if (((b.getX() < a.getX() && a.getX() < c.getX()) || (b.getX() < c.getX() && c.getX() < a.getX()) || (c.getX() < b.getX() && b.getX() < a.getX()))) {
+                if (a.getY() != b.getY()) {
+                    render_line(a, b, c, z_buffer, target, w1, w2, w3, width, height, m_ab, q_ab, isAbVertical, m_ac, q_ac,
+                                isAcVertical, a.getY(), b.getY());
+                }
+                if (b.getY() != c.getY()) {
+                    render_line(a, b, c, z_buffer, target, w1, w2, w3, width, height, m_bc, q_bc, isBcVertical, m_ac,
+                                q_ac, isAcVertical, b.getY(), c.getY());
+                }
+            } else {
+                if (a.getY() != b.getY()) {
+                    render_line(a, b, c, z_buffer, target, w1, w2, w3, width, height, m_ac, q_ac, isAcVertical, m_ab,
+                                q_ab, isAbVertical, a.getY(), b.getY());
+                }
+                if (b.getY() != c.getY()) {
+                    render_line(a, b, c, z_buffer, target, w1, w2, w3, width, height, m_ac, q_ac, isAcVertical, m_bc,
+                                q_bc, isBcVertical, b.getY(), c.getY());
+                }
+            }
+
+            /*
+            if (triangle[0].getY() < triangle[1].getY()) {
+                if (triangle[0].getY() < triangle[2].getY()) {
+                    a = triangle[0];
+                    if (triangle[1].getY() < triangle[2].getY()) {
+                        b = triangle[1];
+                        c = triangle[2];
+                    } else {
+                        b = triangle[2];
+                        c = triangle[1];
+                    }
+                } else {
+                    // 0 < 1
+                    // 2 < 0
+                    // 2 < 0 < 1
+                    // triangle[2].getY() <= triangle[0].getY();
+                    if (triangle[2].getY() < triangle[1].getY()) {
+                        a = triangle[2];
+
+                    }
+                }
+            }*/
+
+
         }
     }
 
 private:
+
+
+    void
+    render_line(Vertex &a, Vertex &b, Vertex &c, double *z_buffer, target_t *target, double w1, double w2, double w3,
+                int width, int height, double m_left, double q_left, bool isLeftVertical, double m_right,
+                double q_right, bool isRightVertical,
+                int min_y, int max_y) {
+
+
+        min_y = std::max(min_y, 0);
+        max_y = std::min(max_y, height-1);
+
+        for (int y = min_y; y <= max_y; y++) {
+            double computed_x_start = round((isLeftVertical) ? q_left : ((y - q_left) / m_left));
+            double computed_x_end = round((isRightVertical) ? q_right : ((y - q_right) / m_right));
+
+            if (computed_x_start > computed_x_end) {
+                std::swap(computed_x_start, computed_x_end);
+            }
+            int x_start = std::max((int) computed_x_start, 0);
+            int x_end = std::min((int) computed_x_end, width-1);
+
+            for (int x = x_start; x <= x_end; x++) {
+                const int targetCell = y * width + x;
+                // Computes barycentric coordinates
+                double A1 = triangle_area(c, b, x, y);
+                double A2 = triangle_area(a, c, x, y);
+                double A3 = triangle_area(b, a, x, y);
+                double sum = A1 + A2 + A3;
+
+
+                // Z-Buffer testing
+                double z = 1.0 / (a.getZ() * (A1/sum) + b.getZ() * (A2/sum) + c.getZ() * (A3/sum));
+
+                if (z < z_buffer[targetCell]) {
+                    // Interpolates the vertex
+                    Vertex interpolated = Vertex::interpolate(a, b, c, A1,
+                                                              A2, A3, w1, w2, w3);
+                    // Calls the fragment CharShader
+                    target[targetCell] = shader(interpolated);
+                    // Updates Z-Buffer
+                    z_buffer[targetCell] = z;
+                }
+
+            }
+        }
+    }
+
     /**
      * Computes the triangle area (for barycentric coordinates)
      *

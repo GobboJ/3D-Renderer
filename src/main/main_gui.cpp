@@ -13,8 +13,8 @@
 #include <iostream>
 #include <string>
 
-#define WIDTH 320
-#define HEIGHT 240
+#define WIDTH 640
+#define HEIGHT 480
 
 //Screen dimension constants
 const int SCREEN_WIDTH = WIDTH;

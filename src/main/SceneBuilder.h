@@ -21,7 +21,7 @@ Scene<T> createScene(S &shader, int frame = 0) {
     const SimpleMesh rectangle({{0, 0, 0, 0xFF0000},
                                 {4, 0, 0, 0x00FF00},
                                 {0, 2, 0, 0x0000FF},
-                                {4, 2, 0, 0xFFFFFF}}, {{0, 1, 2},
+                                {4, 2, 0, 0xFFFFFF}}, {/*{0, 1, 2},*/
                                                        {1, 3, 2}});
 
     const SimpleMesh cube({{1,  1,  -1, 0xFF0000},
@@ -56,9 +56,9 @@ Scene<T> createScene(S &shader, int frame = 0) {
 
     Object<SimpleMesh, SimpleVertex, S> o2(rectangle, shader);
     o2.setPosition(0,0, -7);
-    o2.setRotation(0, 0, 0);
+    o2.setRotation(0, 150, 0);
     Scene<T> s(camera);
-    s.add(o2);
+    //s.add(o2);
     s.add(o);
     return s;
 }
