@@ -18,6 +18,28 @@ struct bounding_box {
     double top;
 };
 
+class myEdge {
+public:
+    int x1, x2, y1, y2;
+    myEdge(int x1, int y1, int x2, int y2, int width, int height) {
+        x1 = (x1 < 0) ? 0 : x1;
+        y1 = (y1 < 0) ? 0 : y1;
+        x2 = (x2 > width-1) ? width-1 : x2;
+        y2 = (y2 > height-1) ? height-1 : y2;
+        if (y1 < y2) {
+            this->x1 = x1;
+            this->y1 = y1;
+            this->x2 = x2;
+            this->y2 = y2;
+        } else {
+            this->x1 = x2;
+            this->y1 = y2;
+            this->x2 = x1;
+            this->y2 = y1;
+        }
+    }
+};
+
 template<class target_t, class Mesh, class Vertex, class Shader, class ...Texture>
 class DedicatedPipelineImpl : public DedicatedPipeline<target_t> {
 private:
@@ -55,6 +77,67 @@ public:
             triangle[2].viewportMapping(viewportMatrix);
 
             /*
+            Rasterizer<target_t> rast = {target, width, height};
+            rast.drawTriangle(0, triangle[0].getX(), triangle[0].getY(), 0, triangle[1].getX(), triangle[1].getY(), 0,
+                              triangle[2].getX(), triangle[2].getY());
+            */
+
+
+            /*Edge firstEdge(0, triangle[0].getX(), triangle[0].getY(), 0, triangle[1].getX(), triangle[1].getY());
+            Edge secondEdge(0, triangle[1].getX(), triangle[1].getY(), 0, triangle[2].getX(), triangle[2].getY());
+            Edge thirdEdge(0, triangle[0].getX(), triangle[0].getY(), 0, triangle[2].getX(), triangle[2].getY());
+
+            int maxLength = firstEdge.Y2 - firstEdge.Y1;
+            Edge tallest = firstEdge;
+            Edge shortOne = secondEdge;
+            Edge shortTwo = thirdEdge;
+
+            int secondEdgeLength = secondEdge.Y2 - secondEdge.Y1;
+            int thirdEdgeLength = thirdEdge.Y2 - thirdEdge.Y1;
+            if (secondEdgeLength > maxLength) {
+                maxLength = secondEdgeLength;
+                tallest = secondEdge;
+                shortOne = firstEdge;
+            }
+            if (thirdEdgeLength > maxLength) {
+                maxLength = thirdEdgeLength;
+                shortTwo = tallest;
+                tallest = thirdEdge;
+            }
+             Rasterizer<target_t> r(target, width, height);
+            r.drawSpans(tallest, shortOne);
+            r.drawSpans(tallest, shortTwo);
+             */
+
+            myEdge firstEdge(triangle[0].getX(), triangle[0].getY(), triangle[1].getX(), triangle[1].getY(), width, height);
+            myEdge secondEdge(triangle[1].getX(), triangle[1].getY(), triangle[2].getX(), triangle[2].getY(), width, height);
+            myEdge thirdEdge(triangle[0].getX(), triangle[0].getY(), triangle[2].getX(), triangle[2].getY(), width, height);
+
+            int maxLength = firstEdge.y2 - firstEdge.y1;
+            myEdge tallest = firstEdge;
+            myEdge shortOne = secondEdge;
+            myEdge shortTwo = thirdEdge;
+
+            int secondEdgeLength = secondEdge.y2 - secondEdge.y1;
+            int thirdEdgeLength = thirdEdge.y2 - thirdEdge.y1;
+            if (secondEdgeLength > maxLength) {
+                maxLength = secondEdgeLength;
+                tallest = secondEdge;
+                shortOne = firstEdge;
+            }
+            if (thirdEdgeLength > maxLength) {
+                maxLength = thirdEdgeLength;
+                shortTwo = tallest;
+                tallest = thirdEdge;
+            }
+
+            draw_line(tallest, shortOne, triangle[0], triangle[1], triangle[2], w1, w2, w3, target, z_buffer, width, height);
+            draw_line(tallest, shortTwo, triangle[0], triangle[1], triangle[2], w1, w2, w3, target, z_buffer, width, height);
+
+
+
+
+            /*
             bounding_box box = compute_box(triangle[0], triangle[1], triangle[2]);
 
             for (int r = std::lround(box.top); r < box.bottom; r++) {
@@ -84,126 +167,56 @@ public:
                 }
             }
             */
-
-            Vertex &a = triangle[0];
-            Vertex &b = triangle[1];
-            Vertex &c = triangle[2];
-
-            if (a.getY() > c.getY()) {
-                std::swap(a, c);
-            }
-
-            if (a.getY() > b.getY()) {
-                std::swap(a, b);
-            }
-
-            if (b.getY() > c.getY()) {
-                std::swap(b, c);
-            }
-
-            bool isAbVertical = (a.getX() == b.getX());
-            double m_ab = isAbVertical ? 0 : (a.getY() - b.getY()) / (a.getX() - b.getX());
-            bool isBcVertical = (b.getX() == c.getX());
-            double m_bc = isBcVertical ? 0 : (b.getY() - c.getY()) / (b.getX() - c.getX());
-            bool isAcVertical = (a.getX() == c.getX());
-            double m_ac = isAcVertical ? 0 : (a.getY() - c.getY()) / (a.getX() - c.getX());
-
-            double q_ab = isAbVertical ? a.getX() : a.getY() - m_ab * a.getX();
-            double q_bc = isBcVertical ? b.getX() : b.getY() - m_bc * b.getX();
-            double q_ac = isAcVertical ? c.getX() : c.getY() - m_ac * c.getX();
-
-            if (((b.getX() < a.getX() && a.getX() < c.getX()) || (b.getX() < c.getX() && c.getX() < a.getX()) || (c.getX() < b.getX() && b.getX() < a.getX()))) {
-                if (a.getY() != b.getY()) {
-                    render_line(a, b, c, z_buffer, target, w1, w2, w3, width, height, m_ab, q_ab, isAbVertical, m_ac, q_ac,
-                                isAcVertical, a.getY(), b.getY());
-                }
-                if (b.getY() != c.getY()) {
-                    render_line(a, b, c, z_buffer, target, w1, w2, w3, width, height, m_bc, q_bc, isBcVertical, m_ac,
-                                q_ac, isAcVertical, b.getY(), c.getY());
-                }
-            } else {
-                if (a.getY() != b.getY()) {
-                    render_line(a, b, c, z_buffer, target, w1, w2, w3, width, height, m_ac, q_ac, isAcVertical, m_ab,
-                                q_ab, isAbVertical, a.getY(), b.getY());
-                }
-                if (b.getY() != c.getY()) {
-                    render_line(a, b, c, z_buffer, target, w1, w2, w3, width, height, m_ac, q_ac, isAcVertical, m_bc,
-                                q_bc, isBcVertical, b.getY(), c.getY());
-                }
-            }
-
-            /*
-            if (triangle[0].getY() < triangle[1].getY()) {
-                if (triangle[0].getY() < triangle[2].getY()) {
-                    a = triangle[0];
-                    if (triangle[1].getY() < triangle[2].getY()) {
-                        b = triangle[1];
-                        c = triangle[2];
-                    } else {
-                        b = triangle[2];
-                        c = triangle[1];
-                    }
-                } else {
-                    // 0 < 1
-                    // 2 < 0
-                    // 2 < 0 < 1
-                    // triangle[2].getY() <= triangle[0].getY();
-                    if (triangle[2].getY() < triangle[1].getY()) {
-                        a = triangle[2];
-
-                    }
-                }
-            }*/
-
-
         }
     }
 
 private:
 
+    void draw_line(myEdge &tallestEdge, myEdge &shortEdge, Vertex &v0, Vertex &v1, Vertex &v2, double w1, double w2, double w3, target_t *target, double* z_buffer, int width, int height) {
 
-    void
-    render_line(Vertex &a, Vertex &b, Vertex &c, double *z_buffer, target_t *target, double w1, double w2, double w3,
-                int width, int height, double m_left, double q_left, bool isLeftVertical, double m_right,
-                double q_right, bool isRightVertical,
-                int min_y, int max_y) {
+        if ((tallestEdge.y2 - tallestEdge.y1) != 0 && (shortEdge.y2 - shortEdge.y1) != 0){
 
+            double tallestEdgeWidth = tallestEdge.x2 - tallestEdge.x1;
+            double shortEdgeWidth = shortEdge.x2 - shortEdge.x1;
+            double firstFactor = ((double ) (shortEdge.y1 - tallestEdge.y1)) / (tallestEdge.y2 - tallestEdge.y1);
+            double firstFactorStep = 1.0 / (tallestEdge.y2 - tallestEdge.y1);
+            double secondFactor = 0;
+            double secondFactorStep = 1.0 / (shortEdge.y2 - shortEdge.y1);
 
-        min_y = std::max(min_y, 0);
-        max_y = std::min(max_y, height-1);
+            for (int y = shortEdge.y1; y < shortEdge.y2; y++) {
 
-        for (int y = min_y; y <= max_y; y++) {
-            double computed_x_start = round((isLeftVertical) ? q_left : ((y - q_left) / m_left));
-            double computed_x_end = round((isRightVertical) ? q_right : ((y - q_right) / m_right));
-
-            if (computed_x_start > computed_x_end) {
-                std::swap(computed_x_start, computed_x_end);
-            }
-            int x_start = std::max((int) computed_x_start, 0);
-            int x_end = std::min((int) computed_x_end, width-1);
-
-            for (int x = x_start; x <= x_end; x++) {
-                const int targetCell = y * width + x;
-                // Computes barycentric coordinates
-                double A1 = triangle_area(c, b, x, y);
-                double A2 = triangle_area(a, c, x, y);
-                double A3 = triangle_area(b, a, x, y);
-                double sum = A1 + A2 + A3;
-
-
-                // Z-Buffer testing
-                double z = 1.0 / (a.getZ() * (A1/sum) + b.getZ() * (A2/sum) + c.getZ() * (A3/sum));
-
-                if (z < z_buffer[targetCell]) {
-                    // Interpolates the vertex
-                    Vertex interpolated = Vertex::interpolate(a, b, c, A1,
-                                                              A2, A3, w1, w2, w3);
-                    // Calls the fragment CharShader
-                    target[targetCell] = shader(interpolated);
-                    // Updates Z-Buffer
-                    z_buffer[targetCell] = z;
+                int x_start = tallestEdge.x1 + (int) (tallestEdgeWidth * firstFactor);
+                int x_end = shortEdge.x1 + (int) (shortEdgeWidth * secondFactor);
+                if (x_start > x_end) {
+                    int tmp = x_start;
+                    x_start = x_end;
+                    x_end = tmp;
                 }
+                if ((x_end - x_start) != 0) {
+                    for (int x = x_start; x < x_end; x++) {
+                        // Computes barycentric coordinates
+                        double A1 = triangle_area(v2, v1, x, y);
+                        double A2 = triangle_area(v0, v2, x, y);
+                        double A3 = triangle_area(v1, v0, x, y);
+                        double sum = A1 + A2 + A3;
+                        // Z-Buffer testing
+                        double z = 1.0 / (v0.getZ() * (A1 / sum) + v1.getZ() * (A2 / sum) + v2.getZ() * (A3 / sum));
 
+                        if (z < z_buffer[y * width + x]) {
+
+                            // sheidazione
+                            Vertex interpolated = Vertex::interpolate(v0, v1, v2, A1,
+                                                                      A2, A3, w1, w2, w3);
+                            // Calls the fragment CharShader
+                            target[y * width + x] = shader(interpolated);
+                            // Updates Z-Buffer
+                            z_buffer[y * width + x] = z;
+
+                        }
+                    }
+                }
+                firstFactor += firstFactorStep;
+                secondFactor += secondFactorStep;
             }
         }
     }
