@@ -22,7 +22,7 @@ void render_char() {
 
 
     CharShader shader{};
-    Scene<char> s = createScene<char>(shader);
+    Scene<char> s = createSimpleScene<char, CharShader, char>(shader, 'a');
     Pipeline<char> p(target, WIDTH, HEIGHT);
 
     p.render(s);

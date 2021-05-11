@@ -116,6 +116,7 @@ public:
             r.drawSpans(tallest, shortTwo);
              */
 
+            /*
             myEdge firstEdge(triangle[0].getX(), triangle[0].getY(), triangle[1].getX(), triangle[1].getY(), width, height);
             myEdge secondEdge(triangle[1].getX(), triangle[1].getY(), triangle[2].getX(), triangle[2].getY(), width, height);
             myEdge thirdEdge(triangle[0].getX(), triangle[0].getY(), triangle[2].getX(), triangle[2].getY(), width, height);
@@ -140,12 +141,34 @@ public:
 
             draw_line(tallest, shortOne, triangle[0], triangle[1], triangle[2], w1, w2, w3, target, z_buffer, width, height);
             draw_line(tallest, shortTwo, triangle[0], triangle[1], triangle[2], w1, w2, w3, target, z_buffer, width, height);
-
+*/
 
 
 
 
             bounding_box box = compute_box(triangle[0], triangle[1], triangle[2]);
+
+
+            // Barycentric precomputations
+
+            const Vertex &a = triangle[0];
+            const Vertex &b = triangle[1];
+            const Vertex &ca = triangle[2];
+
+            double vaX = a.getX();
+            double vaY = a.getY();
+            double vbX = b.getX();
+            double vbY = b.getY();
+            double vcX = ca.getX();
+            double vcY = ca.getY();
+
+            double v0X = vbX - vaX;
+            double v0Y = vbY - vaY;
+            double v1X = vcX - vaX;
+            double v1Y = vcY - vaY;
+
+            double den= (v0X * v1Y - v1X * v0Y);
+            double invDen = 1.0/ den;
 
             for (int r = std::lround(box.top); r < box.bottom; r++) {
                 start_chrono(8);
@@ -236,7 +259,8 @@ public:
                                 stop_chrono(4);
                                 start_chrono(5);
                                 // Calls the fragment CharShader
-                                target[r * width + c] = shader(interpolated);
+                                target[r * width + c] = shader(interpolated, textures);
+                                stop_chrono(5);
                                 // Updates Z-Buffer
                                 z_buffer[r * width + c] = z;
                             }
@@ -246,7 +270,7 @@ public:
                     stop_chrono(8);
                 }
             }
-            */
+            stop_chrono(7);
         }
         stop_chrono(0);
     }
@@ -290,7 +314,7 @@ private:
                             Vertex interpolated = Vertex::interpolate(v0, v1, v2, A1,
                                                                       A2, A3, w1, w2, w3);
                             // Calls the fragment CharShader
-                            target[y * width + x] = shader(interpolated);
+                            target[y * width + x] = shader(interpolated, textures);
                             // Updates Z-Buffer
                             z_buffer[y * width + x] = z;
 
@@ -303,6 +327,61 @@ private:
         }
     }
 
+    // Compute barycentric coordinates (u, v, w) for
+    // point p with respect to triangle (a, b, c)
+    inline void Barycentric(const double px, const double py, const Vertex &a, const Vertex &b, const Vertex &c, double &u, double &v, double &w)
+    {
+        double vaX = a.getX();
+        double vaY = a.getY();
+        double vbX = b.getX();
+        double vbY = b.getY();
+        double vcX = c.getX();
+        double vcY = c.getY();
+
+        double v0X = vbX - vaX;
+        double v0Y = vbY - vaY;
+        double v1X = vcX - vaX;
+        double v1Y = vcY - vaY;
+        double v2X = px - vaX;
+        double v2Y = py - vaY;
+
+        double den= (v0X * v1Y - v1X * v0Y);
+        if (den != 0) {
+            double invDen = 1.0/ den;
+            v = (v2X * v1Y - v1X * v2Y) * invDen;
+            w = (v0X * v2Y - v2X * v0Y) * invDen;
+            u = 1.0 - v - w;
+        } else {
+            v = 0;
+            w = 0;
+            u = 1.0;
+        }
+    }
+    // Compute barycentric coordinates (u, v, w) for
+// point p with respect to triangle (a, b, c)
+    inline void Barycentric2(const double px, const double py, const Vertex &a, const Vertex &b, const Vertex &c, double &u, double &v, double &w)
+    {
+        Vector3 va(a.getX(), a.getY(), a.getZ());
+        Vector3 vb(b.getX(), b.getY(), b.getZ());
+        Vector3 vc(c.getX(), c.getY(), c.getZ());
+        Vector3 vp(px, py, 0);
+        Vector3 v0 = vb - va, v1 = vc - va, v2 = vp - va;
+        double d00 = v0.dot(v0);
+        double d01 = v0.dot(v1);
+        double d11 = v1.dot(v1);
+        double d20 = v2.dot(v0);
+        double d21 = v2.dot(v1);
+        double denom = d00 * d11 - d01 * d01;
+        if (denom != 0) {
+            v = (d11 * d20 - d01 * d21) / denom;
+            w = (d00 * d21 - d01 * d20) / denom;
+            u = 1.0f - v - w;
+        } else {
+            v = 0;
+            w = 0;
+            u = 1;
+        }
+    }
     /**
      * Computes the triangle area (for barycentric coordinates)
      *

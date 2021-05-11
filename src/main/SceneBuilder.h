@@ -10,6 +10,7 @@
 #include "../pipeline/vertex/SimpleVertex.h"
 #include "../pipeline/Pipeline.h"
 #include "SimpleMesh.h"
+#include "../pipeline/vertex/TextureVertex.h"
 #include <iterator>
 #include <array>
 #include <cstddef>

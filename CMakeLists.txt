@@ -34,7 +34,7 @@ add_executable(3D_Renderer
         src/main/Shaders.cpp
         src/main/Shaders.h
         src/main/SceneBuilder.cpp
-        src/main/SceneBuilder.h)
+        src/main/SceneBuilder.h )
 
 add_executable(3D_Renderer_SDL
         src/main/main_gui.cpp
@@ -63,6 +63,10 @@ add_executable(3D_Renderer_SDL
         src/main/Shaders.cpp
         src/main/Shaders.h
         src/main/SceneBuilder.cpp
-        src/main/SceneBuilder.h)
+        src/main/SceneBuilder.h
+        src/main/TextureShader.h
+        src/pipeline/vertex/TextureVertex.cpp
+        src/pipeline/vertex/TextureVertex.h
+        src/pipeline/util/ChronoMeter.h src/pipeline/util/ChronoMeter.cpp)
 
 target_link_libraries(3D_Renderer_SDL ${SDL2_LIBRARIES})

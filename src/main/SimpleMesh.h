@@ -16,16 +16,17 @@
 #include <iostream>
 #include <string>
 
+template<class V>
 class SimpleMesh {
-    std::vector<SimpleVertex> vertices;
+    std::vector<V> vertices;
     std::vector<std::array<int, 3>> indices;
 public:
-    SimpleMesh(const std::vector<SimpleVertex> &vertices, const std::vector<std::array<int, 3>> &indices);
+    SimpleMesh(const std::vector<V> &vertices, const std::vector<std::array<int, 3>> &indices) : vertices(
+            vertices), indices(indices) {}
 
-    TriangleIterator begin() const;
+    TriangleIterator<V> begin() const { return TriangleIterator<V>(vertices, indices, false); }
 
-    TriangleIterator end() const;
+    TriangleIterator<V> end() const { return TriangleIterator<V>(vertices, indices, true); }
 };
-
 
 #endif //INC_3D_RENDERER_SIMPLEMESH_H
