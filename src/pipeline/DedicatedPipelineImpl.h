@@ -10,6 +10,7 @@
 #include <iostream>
 #include "DedicatedPipeline.h"
 #include "object/ObjectInfo.h"
+#include "util/ChronoMeter.h"
 
 struct bounding_box {
     double left;
@@ -22,10 +23,8 @@ class myEdge {
 public:
     int x1, x2, y1, y2;
     myEdge(int x1, int y1, int x2, int y2, int width, int height) {
-        x1 = (x1 < 0) ? 0 : x1;
-        y1 = (y1 < 0) ? 0 : y1;
-        x2 = (x2 > width-1) ? width-1 : x2;
-        y2 = (y2 > height-1) ? height-1 : y2;
+
+        //std::cout << y1 << " " << y2 << std::endl;
         if (y1 < y2) {
             this->x1 = x1;
             this->y1 = y1;
@@ -37,6 +36,11 @@ public:
             this->x2 = x1;
             this->y2 = y1;
         }
+
+        this->x1 = (this->x1 < 0) ? 0 : this->x1;
+        this->y1 = (this->y1 < 0) ? 0 : this->y1;
+        this->x2 = (this->x2 > width-1) ? width-1 : this->x2;
+        this->y2 = (this->y2 > height-1) ? height-1 : this->y2;
     }
 };
 
@@ -58,7 +62,10 @@ public:
                 const std::array<double, 16> &viewMatrix,
                 const std::array<double, 16> &projectionMatrix, const std::array<double, 16> &viewportMatrix) override {
 
+        start_chrono(0);
         for (std::array<Vertex, 3> triangle : mesh) {
+            start_chrono(7);
+            start_chrono(3);
             // Model to world
             triangle[0].transform(info->getWorldMatrix());
             triangle[1].transform(info->getWorldMatrix());
@@ -75,7 +82,7 @@ public:
             triangle[0].viewportMapping(viewportMatrix);
             triangle[1].viewportMapping(viewportMatrix);
             triangle[2].viewportMapping(viewportMatrix);
-
+            stop_chrono(3);
             /*
             Rasterizer<target_t> rast = {target, width, height};
             rast.drawTriangle(0, triangle[0].getX(), triangle[0].getY(), 0, triangle[1].getX(), triangle[1].getY(), 0,
@@ -137,37 +144,111 @@ public:
 
 
 
-            /*
+
             bounding_box box = compute_box(triangle[0], triangle[1], triangle[2]);
 
             for (int r = std::lround(box.top); r < box.bottom; r++) {
+                start_chrono(8);
                 for (int c = std::lround(box.left); c < box.right; c++) {
                     if (r > 0 && r < height && c > 0 && c < width) {
-                        // Computes barycentric coordinates
-                        double A1 = triangle_area(triangle[2], triangle[1], c, r);
-                        double A2 = triangle_area(triangle[0], triangle[2], c, r);
-                        double A3 = triangle_area(triangle[1], triangle[0], c, r);
-                        double sum = A1 + A2 + A3;
 
-                        if (inside_test(A1, A2, A3, sum)) {
+                        double A1 = 1.0;
+                        double A2 = 0;
+                        double A3 = 0;
+                        start_chrono(9);
+                        //Barycentric(c, r, triangle[0], triangle[1], triangle[2], A1, A2, A3);
+
+                        double v2X = c - vaX;
+                        double v2Y = r - vaY;
+
+                        if (den != 0) {
+                            A2 = (v2X * v1Y - v1X * v2Y) * invDen;
+                            A3 = (v0X * v2Y - v2X * v0Y) * invDen;
+                            A1 = 1.0 - A2 - A3;
+                        }
+
+                        /*A1 = u;
+                        A2 = v;
+                        A3 = w;*/
+
+                        stop_chrono(9);
+                        start_chrono(2);
+                        //double A1a = triangle_area(triangle[2], triangle[1], c, r);
+                        //double A2a = triangle_area(triangle[0], triangle[2], c, r);
+                        //double A3a = triangle_area(triangle[1], triangle[0], c, r);
+                        stop_chrono(2);
+/*
+                        start_chrono(9);
+                        Barycentric(c, r, triangle[0], triangle[1], triangle[2], A1, A2, A3);
+                        stop_chrono(9);
+                        start_chrono(10);
+                        Barycentric2(c, r, triangle[0], triangle[1], triangle[2], A1, A2, A3);
+                        stop_chrono(10);
+                        double sum = 1;*/
+/*
+                        double a1bis = 3;
+                        double a2bis = 3;
+                        double a3bis = 3;
+
+                        Barycentric2(c, r, triangle[0], triangle[1], triangle[2], a1bis, a2bis, a3bis);
+                        double sum2 = a1bis + a2bis + a3bis;
+
+                        double a2 = a1bis / sum2;
+                        double b2 = a2bis / sum2;
+                        double c2 = a3bis / sum2;
+
+
+                        double a1tis = 3;
+                        double a2tis = 3;
+                        double a3tis = 3;
+
+                        Barycentric(c, r, triangle[0], triangle[1], triangle[2], a1tis, a2tis, a3tis);
+                        double sum3 = a1tis + a2tis + a3tis;
+
+                        double a3 = a1tis / sum3;
+                        double b3 = a2tis / sum3;
+                        double c3 = a3tis / sum3;
+
+
+
+                        double sum = A1 + A2 + A3;
+                        double aCorr = A1 / sum;
+                        double bCorr = A2 / sum;
+                        double cCorr = A3 / sum;
+
+                        if (a3tis > 0) {
+                            int ssss = 3;
+                        }
+*/
+
+
+                        start_chrono(6);
+                        if (inside_test(A1, A2, A3)) {
                             // Z-Buffer testing
-                            double z = 1.0 / (triangle[0].getZ() * (A1/sum) + triangle[1].getZ() * (A2/sum) + triangle[2].getZ() * (A3/sum));
+                            double z = 1.0 / (triangle[0].getZ() * (A1) + triangle[1].getZ() * (A2) +
+                                              triangle[2].getZ() * (A3));
 
                             if (z < z_buffer[r * width + c]) {
+                                start_chrono(4);
                                 // Interpolates the vertex
                                 Vertex interpolated = Vertex::interpolate(triangle[0], triangle[1], triangle[2], A1,
                                                                           A2, A3, w1, w2, w3);
+                                stop_chrono(4);
+                                start_chrono(5);
                                 // Calls the fragment CharShader
                                 target[r * width + c] = shader(interpolated);
                                 // Updates Z-Buffer
                                 z_buffer[r * width + c] = z;
                             }
                         }
+                        stop_chrono(6);
                     }
+                    stop_chrono(8);
                 }
             }
             */
         }
+        stop_chrono(0);
     }
 
 private:
@@ -194,6 +275,7 @@ private:
                 }
                 if ((x_end - x_start) != 0) {
                     for (int x = x_start; x < x_end; x++) {
+
                         // Computes barycentric coordinates
                         double A1 = triangle_area(v2, v1, x, y);
                         double A2 = triangle_area(v0, v2, x, y);
@@ -238,8 +320,8 @@ private:
      * Tests if pixel is inside a triangle
      *
      */
-    inline bool inside_test(const double A1, const double A2, const double A3, const double sum) {
-        return (A1 / sum >= 0 && A1 / sum <= 1) && (A2 / sum >= 0 && A2 / sum <= 1) && (A3 / sum >= 0 && A3 / sum <= 1);
+    inline bool inside_test(const double A1, const double A2, const double A3) {
+        return (A1 >= 0 && A1 <= 1) && (A2 >= 0 && A2 <= 1) && (A3 >= 0 && A3 <= 1);
     }
 
     /**

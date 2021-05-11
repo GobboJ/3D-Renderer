@@ -8,6 +8,9 @@
 #include "SDL.h"
 #include "Shaders.h"
 #include "SceneBuilder.h"
+#include "../pipeline/vertex/TextureVertex.h"
+#include "TextureShader.h"
+#include "../pipeline/util/ChronoMeter.h"
 #include <iterator>
 #include <cstddef>
 #include <iostream>
@@ -22,10 +25,12 @@ const int SCREEN_HEIGHT = HEIGHT;
 
 
 
-void render_color(SDL_Surface *screenSurface, int frame, Uint32 *colorTarget) {
 
-    ColorShader shader{};
-    Scene<Uint32> s = createScene<Uint32>(shader, frame);
+void render_color(SDL_Surface *screenSurface, SDL_Surface *texture, int frame, Uint32 *colorTarget) {
+
+    TextureShader shader{};
+
+    Scene<Uint32> s = createTextureScene<Uint32, TextureShader, SDL_Surface*>(shader, texture, frame);
     Pipeline<Uint32> p(colorTarget, WIDTH, HEIGHT);
     p.render(s);
 
@@ -66,8 +71,10 @@ void render_window() {
             Uint32 *colorTarget = new Uint32[WIDTH * HEIGHT];
             //Get window surface The surface contained by the window
             SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
+            SDL_Surface *texture = SDL_LoadBMP("texture3.bmp");
             //While application is running
             while (!quit) {
+                start_chrono(1);
                 //Handle events on queue
                 while (SDL_PollEvent(&e) != 0) {
                     //User requests quit
@@ -83,7 +90,8 @@ void render_window() {
                         colorTarget[y * WIDTH + x] = 0xFFFFFF;
                     }
                 }
-                render_color(screenSurface, frame, colorTarget);
+                render_color(screenSurface, texture, frame, colorTarget);
+
 
                 unsigned int currentTime = SDL_GetTicks();
 
@@ -91,6 +99,7 @@ void render_window() {
                                             " fps ]").c_str());
 
                 lastTime = currentTime;
+                stop_chrono(1);
                 frame++;
                 // Update the surface
                 SDL_UpdateWindowSurface(window);
@@ -105,9 +114,25 @@ void render_window() {
     }
 }
 
+void print_chrono_info(const char *desc, int index) {
+
+    std::cout << desc << " " << getAverageMilliseconds(index) << " ms (" << getAverageMicroseconds(index) << " micros --> "<< getAverageNanoseconds(index) << " nanos)" << std::endl;
+}
+
 int main(int argc, char *argv[]) {
 
     render_window();
 
+    print_chrono_info("Render:      ", 0);
+    print_chrono_info("Render2:     ", 1);
+    print_chrono_info("Baricentric  ", 2);
+    print_chrono_info("Transform    ", 3);
+    print_chrono_info("Interpolation", 4);
+    print_chrono_info("Shading      ", 5);
+    print_chrono_info("Z-Buffer     ", 6);
+    print_chrono_info("Triangle     ", 7);
+    print_chrono_info("Row          ", 8);
+    print_chrono_info("Baricentric 1", 9);
+    //print_chrono_info("Baricentric 2", 10);
     return 0;
 }
