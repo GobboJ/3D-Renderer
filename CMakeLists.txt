@@ -69,4 +69,5 @@ add_executable(3D_Renderer_SDL
         src/pipeline/vertex/TextureVertex.h
         src/pipeline/util/ChronoMeter.h src/pipeline/util/ChronoMeter.cpp)
 
+add_compile_options(/O)
 target_link_libraries(3D_Renderer_SDL ${SDL2_LIBRARIES})

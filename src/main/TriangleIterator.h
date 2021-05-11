@@ -35,16 +35,16 @@ public:
         next = (isLast) ? this->triangles.size() : 0;
     }
 
-    reference operator*(){ return triangles.at(next); }
+    reference operator*() { return triangles.at(next); }
 
-    pointer operator->(){ return &(triangles.at(next)); }
+    pointer operator->() { return &(triangles.at(next)); }
 
     bool operator==(const TriangleIterator<V> &other) const { return next == other.next; }
 
     bool operator!=(const TriangleIterator<V> &other) const { return next != other.next; }
 
     // Postfix increment
-    TriangleIterator<V> operator++(int){
+    TriangleIterator<V> operator++(int) {
 
         TriangleIterator tmp = *this;
         ++(*this);
@@ -52,9 +52,10 @@ public:
     }
 
     // Prefix increment
-    TriangleIterator<V> &operator++(){
+    TriangleIterator<V> &operator++() {
         next++;
         return *this;
     }
 };
+
 #endif //INC_3D_RENDERER_TRIANGLEITERATOR_H

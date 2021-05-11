@@ -19,30 +19,6 @@ struct bounding_box {
     double top;
 };
 
-class myEdge {
-public:
-    int x1, x2, y1, y2;
-    myEdge(int x1, int y1, int x2, int y2, int width, int height) {
-
-        //std::cout << y1 << " " << y2 << std::endl;
-        if (y1 < y2) {
-            this->x1 = x1;
-            this->y1 = y1;
-            this->x2 = x2;
-            this->y2 = y2;
-        } else {
-            this->x1 = x2;
-            this->y1 = y2;
-            this->x2 = x1;
-            this->y2 = y1;
-        }
-
-        this->x1 = (this->x1 < 0) ? 0 : this->x1;
-        this->y1 = (this->y1 < 0) ? 0 : this->y1;
-        this->x2 = (this->x2 > width-1) ? width-1 : this->x2;
-        this->y2 = (this->y2 > height-1) ? height-1 : this->y2;
-    }
-};
 
 template<class target_t, class Mesh, class Vertex, class Shader, class ...Texture>
 class DedicatedPipelineImpl : public DedicatedPipeline<target_t> {
@@ -83,74 +59,10 @@ public:
             triangle[1].viewportMapping(viewportMatrix);
             triangle[2].viewportMapping(viewportMatrix);
             stop_chrono(3);
-            /*
-            Rasterizer<target_t> rast = {target, width, height};
-            rast.drawTriangle(0, triangle[0].getX(), triangle[0].getY(), 0, triangle[1].getX(), triangle[1].getY(), 0,
-                              triangle[2].getX(), triangle[2].getY());
-            */
-
-
-            /*Edge firstEdge(0, triangle[0].getX(), triangle[0].getY(), 0, triangle[1].getX(), triangle[1].getY());
-            Edge secondEdge(0, triangle[1].getX(), triangle[1].getY(), 0, triangle[2].getX(), triangle[2].getY());
-            Edge thirdEdge(0, triangle[0].getX(), triangle[0].getY(), 0, triangle[2].getX(), triangle[2].getY());
-
-            int maxLength = firstEdge.Y2 - firstEdge.Y1;
-            Edge tallest = firstEdge;
-            Edge shortOne = secondEdge;
-            Edge shortTwo = thirdEdge;
-
-            int secondEdgeLength = secondEdge.Y2 - secondEdge.Y1;
-            int thirdEdgeLength = thirdEdge.Y2 - thirdEdge.Y1;
-            if (secondEdgeLength > maxLength) {
-                maxLength = secondEdgeLength;
-                tallest = secondEdge;
-                shortOne = firstEdge;
-            }
-            if (thirdEdgeLength > maxLength) {
-                maxLength = thirdEdgeLength;
-                shortTwo = tallest;
-                tallest = thirdEdge;
-            }
-             Rasterizer<target_t> r(target, width, height);
-            r.drawSpans(tallest, shortOne);
-            r.drawSpans(tallest, shortTwo);
-             */
-
-            /*
-            myEdge firstEdge(triangle[0].getX(), triangle[0].getY(), triangle[1].getX(), triangle[1].getY(), width, height);
-            myEdge secondEdge(triangle[1].getX(), triangle[1].getY(), triangle[2].getX(), triangle[2].getY(), width, height);
-            myEdge thirdEdge(triangle[0].getX(), triangle[0].getY(), triangle[2].getX(), triangle[2].getY(), width, height);
-
-            int maxLength = firstEdge.y2 - firstEdge.y1;
-            myEdge tallest = firstEdge;
-            myEdge shortOne = secondEdge;
-            myEdge shortTwo = thirdEdge;
-
-            int secondEdgeLength = secondEdge.y2 - secondEdge.y1;
-            int thirdEdgeLength = thirdEdge.y2 - thirdEdge.y1;
-            if (secondEdgeLength > maxLength) {
-                maxLength = secondEdgeLength;
-                tallest = secondEdge;
-                shortOne = firstEdge;
-            }
-            if (thirdEdgeLength > maxLength) {
-                maxLength = thirdEdgeLength;
-                shortTwo = tallest;
-                tallest = thirdEdge;
-            }
-
-            draw_line(tallest, shortOne, triangle[0], triangle[1], triangle[2], w1, w2, w3, target, z_buffer, width, height);
-            draw_line(tallest, shortTwo, triangle[0], triangle[1], triangle[2], w1, w2, w3, target, z_buffer, width, height);
-*/
-
-
-
 
             bounding_box box = compute_box(triangle[0], triangle[1], triangle[2]);
 
-
             // Barycentric precomputations
-
             const Vertex &a = triangle[0];
             const Vertex &b = triangle[1];
             const Vertex &ca = triangle[2];
@@ -167,8 +79,8 @@ public:
             double v1X = vcX - vaX;
             double v1Y = vcY - vaY;
 
-            double den= (v0X * v1Y - v1X * v0Y);
-            double invDen = 1.0/ den;
+            double den = (v0X * v1Y - v1X * v0Y);
+            double invDen = 1.0 / den;
 
             for (int r = std::lround(box.top); r < box.bottom; r++) {
                 start_chrono(8);
@@ -179,7 +91,6 @@ public:
                         double A2 = 0;
                         double A3 = 0;
                         start_chrono(9);
-                        //Barycentric(c, r, triangle[0], triangle[1], triangle[2], A1, A2, A3);
 
                         double v2X = c - vaX;
                         double v2Y = r - vaY;
@@ -190,60 +101,7 @@ public:
                             A1 = 1.0 - A2 - A3;
                         }
 
-                        /*A1 = u;
-                        A2 = v;
-                        A3 = w;*/
-
                         stop_chrono(9);
-                        start_chrono(2);
-                        //double A1a = triangle_area(triangle[2], triangle[1], c, r);
-                        //double A2a = triangle_area(triangle[0], triangle[2], c, r);
-                        //double A3a = triangle_area(triangle[1], triangle[0], c, r);
-                        stop_chrono(2);
-/*
-                        start_chrono(9);
-                        Barycentric(c, r, triangle[0], triangle[1], triangle[2], A1, A2, A3);
-                        stop_chrono(9);
-                        start_chrono(10);
-                        Barycentric2(c, r, triangle[0], triangle[1], triangle[2], A1, A2, A3);
-                        stop_chrono(10);
-                        double sum = 1;*/
-/*
-                        double a1bis = 3;
-                        double a2bis = 3;
-                        double a3bis = 3;
-
-                        Barycentric2(c, r, triangle[0], triangle[1], triangle[2], a1bis, a2bis, a3bis);
-                        double sum2 = a1bis + a2bis + a3bis;
-
-                        double a2 = a1bis / sum2;
-                        double b2 = a2bis / sum2;
-                        double c2 = a3bis / sum2;
-
-
-                        double a1tis = 3;
-                        double a2tis = 3;
-                        double a3tis = 3;
-
-                        Barycentric(c, r, triangle[0], triangle[1], triangle[2], a1tis, a2tis, a3tis);
-                        double sum3 = a1tis + a2tis + a3tis;
-
-                        double a3 = a1tis / sum3;
-                        double b3 = a2tis / sum3;
-                        double c3 = a3tis / sum3;
-
-
-
-                        double sum = A1 + A2 + A3;
-                        double aCorr = A1 / sum;
-                        double bCorr = A2 / sum;
-                        double cCorr = A3 / sum;
-
-                        if (a3tis > 0) {
-                            int ssss = 3;
-                        }
-*/
-
 
                         start_chrono(6);
                         if (inside_test(A1, A2, A3)) {
@@ -277,111 +135,6 @@ public:
 
 private:
 
-    void draw_line(myEdge &tallestEdge, myEdge &shortEdge, Vertex &v0, Vertex &v1, Vertex &v2, double w1, double w2, double w3, target_t *target, double* z_buffer, int width, int height) {
-
-        if ((tallestEdge.y2 - tallestEdge.y1) != 0 && (shortEdge.y2 - shortEdge.y1) != 0){
-
-            double tallestEdgeWidth = tallestEdge.x2 - tallestEdge.x1;
-            double shortEdgeWidth = shortEdge.x2 - shortEdge.x1;
-            double firstFactor = ((double ) (shortEdge.y1 - tallestEdge.y1)) / (tallestEdge.y2 - tallestEdge.y1);
-            double firstFactorStep = 1.0 / (tallestEdge.y2 - tallestEdge.y1);
-            double secondFactor = 0;
-            double secondFactorStep = 1.0 / (shortEdge.y2 - shortEdge.y1);
-
-            for (int y = shortEdge.y1; y < shortEdge.y2; y++) {
-
-                int x_start = tallestEdge.x1 + (int) (tallestEdgeWidth * firstFactor);
-                int x_end = shortEdge.x1 + (int) (shortEdgeWidth * secondFactor);
-                if (x_start > x_end) {
-                    int tmp = x_start;
-                    x_start = x_end;
-                    x_end = tmp;
-                }
-                if ((x_end - x_start) != 0) {
-                    for (int x = x_start; x < x_end; x++) {
-
-                        // Computes barycentric coordinates
-                        double A1 = triangle_area(v2, v1, x, y);
-                        double A2 = triangle_area(v0, v2, x, y);
-                        double A3 = triangle_area(v1, v0, x, y);
-                        double sum = A1 + A2 + A3;
-                        // Z-Buffer testing
-                        double z = 1.0 / (v0.getZ() * (A1 / sum) + v1.getZ() * (A2 / sum) + v2.getZ() * (A3 / sum));
-
-                        if (z < z_buffer[y * width + x]) {
-
-                            // sheidazione
-                            Vertex interpolated = Vertex::interpolate(v0, v1, v2, A1,
-                                                                      A2, A3, w1, w2, w3);
-                            // Calls the fragment CharShader
-                            target[y * width + x] = shader(interpolated, textures);
-                            // Updates Z-Buffer
-                            z_buffer[y * width + x] = z;
-
-                        }
-                    }
-                }
-                firstFactor += firstFactorStep;
-                secondFactor += secondFactorStep;
-            }
-        }
-    }
-
-    // Compute barycentric coordinates (u, v, w) for
-    // point p with respect to triangle (a, b, c)
-    inline void Barycentric(const double px, const double py, const Vertex &a, const Vertex &b, const Vertex &c, double &u, double &v, double &w)
-    {
-        double vaX = a.getX();
-        double vaY = a.getY();
-        double vbX = b.getX();
-        double vbY = b.getY();
-        double vcX = c.getX();
-        double vcY = c.getY();
-
-        double v0X = vbX - vaX;
-        double v0Y = vbY - vaY;
-        double v1X = vcX - vaX;
-        double v1Y = vcY - vaY;
-        double v2X = px - vaX;
-        double v2Y = py - vaY;
-
-        double den= (v0X * v1Y - v1X * v0Y);
-        if (den != 0) {
-            double invDen = 1.0/ den;
-            v = (v2X * v1Y - v1X * v2Y) * invDen;
-            w = (v0X * v2Y - v2X * v0Y) * invDen;
-            u = 1.0 - v - w;
-        } else {
-            v = 0;
-            w = 0;
-            u = 1.0;
-        }
-    }
-    // Compute barycentric coordinates (u, v, w) for
-// point p with respect to triangle (a, b, c)
-    inline void Barycentric2(const double px, const double py, const Vertex &a, const Vertex &b, const Vertex &c, double &u, double &v, double &w)
-    {
-        Vector3 va(a.getX(), a.getY(), a.getZ());
-        Vector3 vb(b.getX(), b.getY(), b.getZ());
-        Vector3 vc(c.getX(), c.getY(), c.getZ());
-        Vector3 vp(px, py, 0);
-        Vector3 v0 = vb - va, v1 = vc - va, v2 = vp - va;
-        double d00 = v0.dot(v0);
-        double d01 = v0.dot(v1);
-        double d11 = v1.dot(v1);
-        double d20 = v2.dot(v0);
-        double d21 = v2.dot(v1);
-        double denom = d00 * d11 - d01 * d01;
-        if (denom != 0) {
-            v = (d11 * d20 - d01 * d21) / denom;
-            w = (d00 * d21 - d01 * d20) / denom;
-            u = 1.0f - v - w;
-        } else {
-            v = 0;
-            w = 0;
-            u = 1;
-        }
-    }
     /**
      * Computes the triangle area (for barycentric coordinates)
      *
@@ -411,10 +164,6 @@ private:
         std::pair<double, double> lr = std::minmax({v1.getX(), v2.getX(), v3.getX()});
         std::pair<double, double> tb = std::minmax({v1.getY(), v2.getY(), v3.getY()});
         return bounding_box({lr.first, lr.second, tb.second, tb.first});
-    }
-
-    void rasterize() {
-
     }
 };
 

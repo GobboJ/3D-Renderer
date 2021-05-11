@@ -3,34 +3,28 @@
 //
 #include "../pipeline/Scene.h"
 #include "../pipeline/Camera.h"
-#include "../pipeline/vertex/SimpleVertex.h"
 #include "../pipeline/Pipeline.h"
 #include "SDL.h"
-#include "Shaders.h"
 #include "SceneBuilder.h"
-#include "../pipeline/vertex/TextureVertex.h"
 #include "TextureShader.h"
-#include "../pipeline/util/ChronoMeter.h"
 #include <iterator>
 #include <cstddef>
 #include <iostream>
 #include <string>
 
-#define WIDTH 320
-#define HEIGHT 240
+#define WIDTH 640
+#define HEIGHT 480
 
 //Screen dimension constants
 const int SCREEN_WIDTH = WIDTH;
 const int SCREEN_HEIGHT = HEIGHT;
 
 
-
-
 void render_color(SDL_Surface *screenSurface, SDL_Surface *texture, int frame, Uint32 *colorTarget) {
 
     TextureShader shader{};
 
-    Scene<Uint32> s = createTextureScene<Uint32, TextureShader, SDL_Surface*>(shader, texture, frame);
+    Scene<Uint32> s = createTextureScene<Uint32, TextureShader, SDL_Surface *>(shader, texture, frame);
     Pipeline<Uint32> p(colorTarget, WIDTH, HEIGHT);
     p.render(s);
 
@@ -71,7 +65,11 @@ void render_window() {
             Uint32 *colorTarget = new Uint32[WIDTH * HEIGHT];
             //Get window surface The surface contained by the window
             SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
-            SDL_Surface *texture = SDL_LoadBMP("texture3.bmp");
+            SDL_Surface *texture = SDL_LoadBMP("texture.bmp");
+            if (texture == nullptr) {
+                std::cerr << "Missing textures!!";
+                exit(1);
+            }
             //While application is running
             while (!quit) {
                 start_chrono(1);
@@ -116,7 +114,8 @@ void render_window() {
 
 void print_chrono_info(const char *desc, int index) {
 
-    std::cout << desc << " " << getAverageMilliseconds(index) << " ms (" << getAverageMicroseconds(index) << " micros --> "<< getAverageNanoseconds(index) << " nanos)" << std::endl;
+    std::cout << desc << " " << getAverageMilliseconds(index) << " ms (" << getAverageMicroseconds(index)
+              << " micros --> " << getAverageNanoseconds(index) << " nanos)" << std::endl;
 }
 
 int main(int argc, char *argv[]) {

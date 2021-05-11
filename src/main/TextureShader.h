@@ -11,16 +11,15 @@
 Uint32 getpixel(SDL_Surface *surface, int x, int y) {
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to retrieve */
-    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+    Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
-    switch (bpp)
-    {
+    switch (bpp) {
         case 1:
             return *p;
             break;
 
         case 2:
-            return *(Uint16 *)p;
+            return *(Uint16 *) p;
             break;
 
         case 3:
@@ -31,7 +30,7 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y) {
             break;
 
         case 4:
-            return *(Uint32 *)p;
+            return *(Uint32 *) p;
             break;
 
         default:
@@ -42,9 +41,9 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y) {
 
 struct TextureShader {
 
-    Uint32 operator()(TextureVertex vertex, std::tuple<SDL_Surface*> textures) {
+    Uint32 operator()(TextureVertex vertex, std::tuple<SDL_Surface *> textures) {
 
-        SDL_Surface* texture = std::get<0>(textures);
+        SDL_Surface *texture = std::get<0>(textures);
         int textureWidth = texture->w;
         int textureHeight = texture->h;
 

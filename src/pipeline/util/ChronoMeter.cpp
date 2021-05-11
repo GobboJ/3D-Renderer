@@ -1,9 +1,7 @@
 //
 // Created by Jonathan on 11/05/2021.
 //
-#include <array>
 #include "ChronoMeter.h"
-#include <ctime>
 
 #ifdef CHRONO_ON
     std::array<clock_t, 16> CHRONO_ARRAY{};
