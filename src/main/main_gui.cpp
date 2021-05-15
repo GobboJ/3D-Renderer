@@ -99,7 +99,7 @@ void render_window() {
             Uint32 *colorTarget = new Uint32[WIDTH * HEIGHT];
             //Get window surface The surface contained by the window
             SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
-            SDL_Surface *texture = SDL_LoadBMP("texture.bmp");
+            SDL_Surface *texture = SDL_LoadBMP("texture3.bmp");
             if (texture == nullptr) {
                 std::cerr << "Missing textures!!";
                 exit(1);

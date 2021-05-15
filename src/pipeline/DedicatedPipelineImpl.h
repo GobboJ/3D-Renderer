@@ -184,9 +184,9 @@ private:
                              double invDen,
                              target_t *target, double *z_buffer, double w1, double w2, double w3) {
 
-        Vertex &v0Orig = v0;
-        Vertex &v1Orig = (v1);
-        Vertex &v2Orig = (v2);
+        Vertex v0Orig = v0;
+        Vertex v1Orig = (v1);
+        Vertex v2Orig = (v2);
 
         // v0 ----> 3
         // v1 ----> 7
@@ -259,8 +259,8 @@ private:
                         A1 = 1.0 - A2 - A3;
                     }
                     // Z-Buffer testing
-                    double z = 1.0 / (v0.getZ() * (A1) + v1.getZ() * (A2) +
-                                      v2.getZ() * (A3));
+                    double z = 1.0 / (v0Orig.getZ() * (A1) + v1Orig.getZ() * (A2) +
+                                      v2Orig.getZ() * (A3));
                     int targetIndex = y * width + x;
                     if (z < z_buffer[targetIndex]) {
 

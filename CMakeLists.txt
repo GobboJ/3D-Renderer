@@ -7,6 +7,14 @@ include_directories(${SDL2_INCLUDE_DIRS})
 
 set(CMAKE_CXX_STANDARD 14)
 
+#if(NOT CMAKE_BUILD_TYPE)
+#    set(CMAKE_BUILD_TYPE Release)
+#endif()
+
+#set(CMAKE_CXX_FLAGS "-pedantic -Wall -Wextra")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g")
+#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 add_executable(3D_Renderer
         src/main/main.cpp
         src/pipeline/Pipeline.cpp
