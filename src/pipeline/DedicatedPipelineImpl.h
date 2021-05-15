@@ -8,6 +8,7 @@
 #include <cmath>
 #include <tuple>
 #include <iostream>
+#include <algorithm>
 #include "DedicatedPipeline.h"
 #include "object/ObjectInfo.h"
 #include "util/ChronoMeter.h"
@@ -81,7 +82,11 @@ public:
 
             double den = (v0X * v1Y - v1X * v0Y);
             double invDen = 1.0 / den;
-
+#define GOBBOJb
+#ifndef GOBBOJ
+            new_renderer(triangle[0], triangle[1], triangle[2], width, height,
+                         v0X, v0Y, v1X, v1Y, den, invDen, target, z_buffer, w1, w2, w3);
+#else
             for (int r = std::lround(box.top); r < box.bottom; r++) {
                 start_chrono(8);
                 for (int c = std::lround(box.left); c < box.right; c++) {
@@ -128,7 +133,10 @@ public:
                     stop_chrono(8);
                 }
             }
-            stop_chrono(7);
+#endif
+
+
+            //stop_chrono(7);
         }
         stop_chrono(0);
     }
@@ -164,6 +172,123 @@ private:
         std::pair<double, double> lr = std::minmax({v1.getX(), v2.getX(), v3.getX()});
         std::pair<double, double> tb = std::minmax({v1.getY(), v2.getY(), v3.getY()});
         return bounding_box({lr.first, lr.second, tb.second, tb.first});
+    }
+
+
+    inline void new_renderer(Vertex &v0, Vertex &v1, Vertex &v2, int width, int height,
+                             double v0X,
+                             double v0Y,
+                             double v1X,
+                             double v1Y,
+                             double den,
+                             double invDen,
+                             target_t *target, double *z_buffer, double w1, double w2, double w3) {
+
+        Vertex &v0Orig = v0;
+        Vertex &v1Orig = (v1);
+        Vertex &v2Orig = (v2);
+
+        // v0 ----> 3
+        // v1 ----> 7
+
+        // v0 ----> 7
+        // v1 -----> 3
+
+        order(v0, v1);
+        order(v0, v2);
+        order(v1, v2);
+
+        int x0 = v0.getX();
+        int x1 = v1.getX();
+        int x2 = v2.getX();
+        int y0 = v0.getY();
+        int y1 = v1.getY();
+        int y2 = v2.getY();
+        if (y0 != y2 && (x0 != x1 || x1 != x2)) {
+            double acDenominator = 1.0 / (y2 - y0);
+            double acIncrement = (x2 - x0) * acDenominator;
+
+            double abDenominator = 1.0 / (y1 - y0);
+            double abIncrement = (x1 - x0) * abDenominator;
+
+            double bcDenominator = 1.0 / (y2 - y1);
+            double bcIncrement = (x2 - x1) * bcDenominator;
+
+            double acOnBY = x0 + (y1 - y0) * acIncrement;
+            bool bendOnLeft = acOnBY >= x1;
+            double leftIncrement;
+            double rightIncrement;
+            if (bendOnLeft) {
+                leftIncrement = abIncrement;
+                rightIncrement = acIncrement;
+            } else {
+                leftIncrement = acIncrement;
+                rightIncrement = abIncrement;
+            }
+            // x0= 588 x1 = 320 y0 = 103 y1 = 117  268/  14
+            int yStart = std::max((int) y0, 0);
+            double xLeft = (y0 == y1) ? x0 : x0 + (yStart - (int) y0) * leftIncrement;
+            double xRight = (y0 == y1) ? x1 : x0 + (yStart - (int) y0) * rightIncrement;
+
+            int yEnd = std::min((int) y2, height);
+            int y1Int = (int) y1;
+            for (int y = yStart; y < yEnd; y++) {
+                if (y >= y1Int) {
+                    if (bendOnLeft) {
+                        leftIncrement = bcIncrement;
+                    } else {
+                        rightIncrement = bcIncrement;
+                    }
+                }
+                int xStart = std::max((int) xLeft, 0);
+                int xEnd = std::min((int) xRight, width);
+                for (int x = xStart; x < xEnd; x++) {
+                    //int targetIndex = y * width + x;
+                    //target[targetIndex] = 0x000000;
+                    // render
+                    double A1 = 1.0;
+                    double A2 = 0;
+                    double A3 = 0;
+
+                    double v2X = x - v0Orig.getX();
+                    double v2Y = y - v0Orig.getY();
+
+                    if (den != 0) {
+                        A2 = (v2X * v1Y - v1X * v2Y) * invDen;
+                        A3 = (v0X * v2Y - v2X * v0Y) * invDen;
+                        A1 = 1.0 - A2 - A3;
+                    }
+                    // Z-Buffer testing
+                    double z = 1.0 / (v0.getZ() * (A1) + v1.getZ() * (A2) +
+                                      v2.getZ() * (A3));
+                    int targetIndex = y * width + x;
+                    if (z < z_buffer[targetIndex]) {
+
+                        // Interpolates the vertex
+                        Vertex interpolated = Vertex::interpolate(v0Orig, v1Orig, v2Orig, A1,
+                                                                  A2, A3, w1, w2, w3);
+
+                        // Calls the fragment CharShader
+                        target[targetIndex] = shader(interpolated, textures);
+
+                        // Updates Z-Buffer
+                        z_buffer[targetIndex] = z;
+                    }
+                }
+                xLeft += leftIncrement;
+                xRight += rightIncrement;
+            }
+        }
+    }
+
+    inline void order(Vertex &v0, Vertex &v1) {
+        int x0 = v0.getX();
+        int x1 = v1.getX();
+        int y0 = v0.getY();
+        int y1 = v1.getY();
+        if (y0 > y1 || (y0 == y1 && x0 > x1)) {
+            std::swap(v0, v1);
+        }
     }
 };
 

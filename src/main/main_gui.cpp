@@ -20,11 +20,13 @@ const int SCREEN_WIDTH = WIDTH;
 const int SCREEN_HEIGHT = HEIGHT;
 
 
-void render_color(SDL_Surface *screenSurface, SDL_Surface *texture, int frame, Uint32 *colorTarget) {
+
+
+void render_color(SDL_Surface *screenSurface, myTexture &texture, int frame, Uint32 *colorTarget) {
 
     TextureShader shader{};
 
-    Scene<Uint32> s = createTextureScene<Uint32, TextureShader, SDL_Surface *>(shader, texture, frame);
+    Scene<Uint32> s = createTextureScene<Uint32, TextureShader, myTexture>(shader, texture, frame);
     Pipeline<Uint32> p(colorTarget, WIDTH, HEIGHT);
     p.render(s);
 
@@ -39,6 +41,36 @@ void render_color(SDL_Surface *screenSurface, SDL_Surface *texture, int frame, U
                 std::cerr << "Error!";
             }
         }
+    }
+}
+
+Uint32 getpixel(SDL_Surface *surface, int x, int y) {
+    int bpp = surface->format->BytesPerPixel;
+    /* Here p is the address to the pixel we want to retrieve */
+    Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
+
+    switch (bpp) {
+        case 1:
+            return *p;
+            break;
+
+        case 2:
+            return *(Uint16 *) p;
+            break;
+
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+                return p[0] << 16 | p[1] << 8 | p[2];
+            else
+                return p[0] | p[1] << 8 | p[2] << 16;
+            break;
+
+        case 4:
+            return *(Uint32 *) p;
+            break;
+
+        default:
+            return 0;       /* shouldn't happen, but avoids warnings */
     }
 }
 
@@ -62,6 +94,8 @@ void render_window() {
             SDL_Event e;
             int frame = 0;
             unsigned int lastTime = 0;
+            unsigned int totalTime = 0;
+            unsigned int totalFrames = 0;
             Uint32 *colorTarget = new Uint32[WIDTH * HEIGHT];
             //Get window surface The surface contained by the window
             SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
@@ -69,6 +103,14 @@ void render_window() {
             if (texture == nullptr) {
                 std::cerr << "Missing textures!!";
                 exit(1);
+            }
+            myTexture t;
+            t.h = texture->h;
+            t.w = texture->w;
+            for (int y = 0; y < texture->h; y++) {
+                for (int x = 0; x < texture->w; x++) {
+                    t.texture.push_back(getpixel(texture, x, y));
+                }
             }
             //While application is running
             while (!quit) {
@@ -88,12 +130,15 @@ void render_window() {
                         colorTarget[y * WIDTH + x] = 0xFFFFFF;
                     }
                 }
-                render_color(screenSurface, texture, frame, colorTarget);
+                render_color(screenSurface, t, frame, colorTarget);
 
 
                 unsigned int currentTime = SDL_GetTicks();
 
-                SDL_SetWindowTitle(window, ("3D-Renderer [ " + std::to_string(1000.0 / (currentTime - lastTime)) +
+                unsigned int difference = currentTime - lastTime;
+                totalTime += difference;
+                totalFrames++;
+                SDL_SetWindowTitle(window, ("3D-Renderer [ " + std::to_string(1000.0 / difference) +
                                             " fps ]").c_str());
 
                 lastTime = currentTime;
@@ -103,6 +148,7 @@ void render_window() {
                 SDL_UpdateWindowSurface(window);
             }
 
+            std::cout << "AVG FRAMES: " << (((totalFrames / (double) totalTime)) * 1000) << "fps" << std::endl;
 
         }
         // Destroy window
@@ -119,7 +165,6 @@ void print_chrono_info(const char *desc, int index) {
 }
 
 int main(int argc, char *argv[]) {
-
     render_window();
 
     print_chrono_info("Render:      ", 0);

@@ -75,10 +75,15 @@ Scene<T> createSimpleScene(S &shader, Texture texture, int frame = 0) {
 template<class T, class S, class Texture>
 Scene<T> createTextureScene(S &shader, Texture &texture, int frame = 0) {
     const SimpleMesh<TextureVertex> rectangle({{0, 0, 0, 0, 0},
-                                               {4, 0, 0, 0, 1},
-                                               {0, 2, 0, 1, 0},
-                                               {4, 2, 0, 1, 1}}, {{0, 1, 2},
-                                                                  {1, 3, 2}});
+                                               {4, 0, 0, 1, 0},
+                                               {0, 2, 0, 0, 1},
+                                               {4, 2, 0, 1, 1}},
+                                              {
+                                                      // Bottom
+                                                      {0, 1, 2},
+                                                      // Top
+                                                                          {1, 3, 2}
+                                              });
 
     const SimpleMesh<TextureVertex> cube({{1,  1,  -1, 1, 1}, // BUR
                                           {1,  -1, -1, 0, 0}, // BDR
@@ -157,7 +162,7 @@ Scene<T> createTextureScene(S &shader, Texture &texture, int frame = 0) {
 
     Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o2(rectangle, shader, texture);
     o2.setPosition(0, 0, -7);
-    o2.setRotation(0, 0, 0);
+    o2.setRotation(0, frame%360, 0);
     Scene<T> s(camera);
     //s.add(o2);
     s.add(o);
