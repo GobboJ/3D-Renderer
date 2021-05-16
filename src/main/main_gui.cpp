@@ -12,14 +12,12 @@
 #include <iostream>
 #include <string>
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 1280
+#define HEIGHT 720
 
 //Screen dimension constants
 const int SCREEN_WIDTH = WIDTH;
 const int SCREEN_HEIGHT = HEIGHT;
-
-
 
 
 void render_color(SDL_Surface *screenSurface, myTexture &texture, int frame, Uint32 *colorTarget) {
@@ -99,7 +97,7 @@ void render_window() {
             Uint32 *colorTarget = new Uint32[WIDTH * HEIGHT];
             //Get window surface The surface contained by the window
             SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
-            SDL_Surface *texture = SDL_LoadBMP("texture3.bmp");
+            SDL_Surface *texture = SDL_LoadBMP("texture.bmp");
             if (texture == nullptr) {
                 std::cerr << "Missing textures!!";
                 exit(1);
@@ -130,12 +128,19 @@ void render_window() {
                         colorTarget[y * WIDTH + x] = 0xFFFFFF;
                     }
                 }
-                render_color(screenSurface, t, frame, colorTarget);
 
-
+                // |11|22|33|44|55|66|77| 60fps
+                // |11111111111|
                 unsigned int currentTime = SDL_GetTicks();
 
                 unsigned int difference = currentTime - lastTime;
+                // 60 : 1000ms = x : 3760
+                //frame = 60 * (SDL_GetTicks());
+                double velocity = 0.1;
+                frame += difference;
+                render_color(screenSurface, t, velocity * frame, colorTarget);
+
+
                 totalTime += difference;
                 totalFrames++;
                 SDL_SetWindowTitle(window, ("3D-Renderer [ " + std::to_string(1000.0 / difference) +

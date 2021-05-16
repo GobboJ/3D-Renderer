@@ -154,11 +154,11 @@ Scene<T> createTextureScene(S &shader, Texture &texture, int frame = 0) {
 
     const Camera camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5});
 
-
+    int amount = (frame)%360;
     Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o(newCube, shader, texture);
     o.setPosition(0, 0, -3);
     o.setScale(1, 1, 1);
-    o.setRotation(frame % 360, frame % 360, frame % 360);
+    o.setRotation(amount, amount, amount);
 
     Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o2(rectangle, shader, texture);
     o2.setPosition(0, 0, -7);

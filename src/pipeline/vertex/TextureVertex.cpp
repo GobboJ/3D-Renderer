@@ -19,7 +19,6 @@ double TextureVertex::getZ() const {
 }
 
 
-
 inline double TextureVertex::multiply(const std::array<double, 16> &matrix, const int index) const {
 
     return matrix[index] * x + matrix[index + 1] * y + matrix[index + 2] * z +
@@ -57,22 +56,26 @@ void TextureVertex::viewportMapping(const std::array<double, 16> &viewportMatrix
 
 TextureVertex
 TextureVertex::interpolate(const TextureVertex &v1, const TextureVertex &v2, const TextureVertex &v3, const double A1,
-                          const double A2, const double A3, const double w0, const double w1, const double w2) {
+                           const double A2, const double A3, const double w0, const double w1, const double w2) {
 
-    Vector3 v1Pos = {v1.getX(), v1.getY(), v1.getZ()};
-    Vector3 v2Pos = {v2.getX(), v2.getY(), v2.getZ()};
-    Vector3 v3Pos = {v3.getX(), v3.getY(), v3.getZ()};
 
-    Vector3 pos = (A1) * v1Pos + (A2) * v2Pos + (A3) * v3Pos;
+
+    //Vector3 pos = (A1) * v1Pos + (A2) * v2Pos + (A3) * v3Pos;
+    Vector3 pos{v1.getX() * A1 + v2.getX() * A2 + v3.getX() * A3,
+                v1.getY() * A1 + v2.getY() * A2 + v3.getY() * A3,
+                v1.getZ() * A1 + v2.getZ() * A2 + v3.getZ() * A3};
+
     /*double z_correction =
             (A1) * v1.getZ() + (A2) * v2.getZ() + (A3) * v3.getZ(); // ?? E' sempre uguale a pos.z
 */
-    double a = A1;
-    double b = A2;
-    double c = A3;
 
-    double int_u = (a * v1.getU() / w0 + b * v2.getU() / w1 + c * v3.getU() / w2) / (a / w0 + b / w1 + c / w2);
-    double int_v = (a * v1.getV() / w0 + b * v2.getV() / w1 + c * v3.getV() / w2) / (a / w0 + b / w1 + c / w2);
+    double invW0 = A1 / w0;
+    double invW1 = A2 / w1;
+    double invW2 = A3 / w2;
+    double sum = invW0 + invW1 + invW2;
+
+    double int_u = (invW0 * v1.getU() + invW1 * v2.getU() + invW2 * v3.getU()) / sum;
+    double int_v = (invW0 * v1.getV() + invW1 * v2.getV() + invW2 * v3.getV()) / sum;
 
     TextureVertex v = {pos.getX(), pos.getY(), pos.getZ(), int_u, int_v};
 

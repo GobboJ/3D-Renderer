@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 #set(CMAKE_CXX_FLAGS "-pedantic -Wall -Wextra")
 #set(CMAKE_CXX_FLAGS_DEBUG "-g")
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "/O2")
 
 add_executable(3D_Renderer
         src/main/main.cpp
@@ -77,5 +77,5 @@ add_executable(3D_Renderer_SDL
         src/pipeline/vertex/TextureVertex.h
         src/pipeline/util/ChronoMeter.h src/pipeline/util/ChronoMeter.cpp)
 
-add_compile_options(/O)
+#add_compile_options(/O)
 target_link_libraries(3D_Renderer_SDL ${SDL2_LIBRARIES})
