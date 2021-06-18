@@ -1,20 +1,35 @@
 cmake_minimum_required(VERSION 3.16)
 project(3D_Renderer)
 
+# Find SDL2
 set(SDL2_DIR ./include/SDL2-2.0.14)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 set(CMAKE_CXX_STANDARD 14)
 
-#if(NOT CMAKE_BUILD_TYPE)
-#    set(CMAKE_BUILD_TYPE Release)
-#endif()
+# Set Release by default if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
 
 #set(CMAKE_CXX_FLAGS "-pedantic -Wall -Wextra")
 #set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "/O2")
 
+# If Release, set optimization flag for each system
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+    if(WIN32)
+        message("[!] Windows detected")
+        set(CMAKE_CXX_FLAGS_RELEASE "/O2")
+    elseif(LINUX) # Linux or else
+        message("[!] Linux detected")
+        set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+    else()
+        message("[!] Unknown system")
+    endif()
+endif()
+
+# CLI Executable
 add_executable(3D_Renderer
         src/main/main.cpp
         src/pipeline/Pipeline.cpp
@@ -44,6 +59,7 @@ add_executable(3D_Renderer
         src/main/SceneBuilder.cpp
         src/main/SceneBuilder.h )
 
+# SDL Executable
 add_executable(3D_Renderer_SDL
         src/main/main_gui.cpp
         src/pipeline/Pipeline.cpp
@@ -77,5 +93,5 @@ add_executable(3D_Renderer_SDL
         src/pipeline/vertex/TextureVertex.h
         src/pipeline/util/ChronoMeter.h src/pipeline/util/ChronoMeter.cpp)
 
-#add_compile_options(/O)
+# Link SDL2 lib
 target_link_libraries(3D_Renderer_SDL ${SDL2_LIBRARIES})
