@@ -15,9 +15,13 @@ private:
     Vector3 rotation;
     Vector3 scale;
     std::array<double, 16> worldMatrix;
-
+    unsigned int animationSteps;
+    unsigned int currentAnimationStep;
 public:
-    explicit ObjectInfo(const Vector3 &position = {0,0,0}, const Vector3 &rotation = {0,0,0}, const Vector3 &scale = {1,1,1});
+
+    explicit ObjectInfo(unsigned int animationSteps, unsigned int currentAnimationStep = 0,
+                        const Vector3 &position = {0, 0, 0}, const Vector3 &rotation = {0, 0, 0},
+                        const Vector3 &scale = {1, 1, 1});
 
     void setPosition(double x, double y, double z);
 
@@ -30,6 +34,12 @@ public:
     const Vector3 &getRotation() const;
 
     const Vector3 &getScale() const;
+
+    unsigned int getCurrentAnimationStep() const;
+
+    void setCurrentAnimationStep(unsigned int currentAnimationStep);
+
+    void nextAnimationFrame();
 
     const std::array<double, 16> &getWorldMatrix() const;
 

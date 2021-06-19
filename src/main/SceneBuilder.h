@@ -57,13 +57,12 @@ Scene<T> createSimpleScene(S &shader, Texture texture, int frame = 0) {
 
     const Camera camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5});
 
-
-    Object<SimpleMesh<SimpleVertex>, SimpleVertex, S, Texture> o(cube, shader, texture);
+    Object<SimpleMesh<SimpleVertex>, SimpleVertex, S, Texture> o({cube}, shader, texture);
     o.setPosition(0, 0, -3.5);
     o.setScale(1, 1, 1);
     o.setRotation(0, frame % 360, 0);
 
-    Object<SimpleMesh<SimpleVertex>, SimpleVertex, S, Texture> o2(rectangle, shader, texture);
+    Object<SimpleMesh<SimpleVertex>, SimpleVertex, S, Texture> o2({rectangle}, shader, texture);
     o2.setPosition(0, 0, -7);
     o2.setRotation(0, 0, 0);
     Scene<T> s(camera);
@@ -151,16 +150,56 @@ Scene<T> createTextureScene(S &shader, Texture &texture, int frame = 0) {
                                              {5,  11, 17},
                                              {11, 17, 23}});
 
+    const SimpleMesh<TextureVertex> newCube2({{0, 0, 0, 0, 0},
+                                             {0, 0, 0, 1, 1},
+                                             {0, 0, 0, 1, 0},// 0 - 2
+                                             {0, 0, 1, 1, 0},
+                                             {0, 0, 1, 0, 1},
+                                             {0, 0, 1, 0, 0},// 3 - 5
+                                             {0, 1, 0, 0, 1},
+                                             {0, 1, 0, 1, 1},
+                                             {0, 1, 0, 1, 1},// 6 - 8
+                                             {0, 1, 1, 1, 1},
+                                             {0, 1, 1, 0, 1},
+                                             {0, 1, 1, 0, 1},// 9 - 11
+                                             {1, 0, 0, 1, 0},
+                                             {1, 0, 0, 0, 0},
+                                             {1, 0, 0, 1, 0},// 12 - 14
+                                             {1, 0, 1, 0, 0},
+                                             {1, 0, 1, 0, 0},
+                                             {1, 0, 1, 1, 0},// 15 - 17
+                                             {1, 1, 0, 0, 1},
+                                             {1, 1, 0, 1, 1},
+                                             {1, 1, 0, 1, 0},// 18 - 20
+                                             {1, 1, 1, 0, 1},
+                                             {1, 1, 1, 0, 0},
+                                             {1, 1, 1, 1, 1},
+                                              {2,2,2,1,1}},// 21 - 23
+                                            {{0,  3,  6},
+                                             {3,  6,  9},
+                                             {1,  4,  12},
+                                             {4,  12, 15},
+                                             {2,  7,  13},
+                                             {7,  13, 18},
+                                             {8,  10, 20},
+                                             {10, 20, 22},
+                                             {14, 16, 19},
+                                             {16, 19, 21},
+                                             {5,  11, 17},
+                                             {11, 17, 23},
+                                             {11,17,24}});
+
 
     const Camera camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5});
 
     int amount = (frame)%360;
-    Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o(newCube, shader, texture);
+    Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o({newCube, newCube2}, shader, texture);
     o.setPosition(0, 0, -3);
     o.setScale(1, 1, 1);
     o.setRotation(amount, amount, amount);
+    o.nextAnimationFrame(); // TODO Change this so that the scene is not created each time
 
-    Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o2(rectangle, shader, texture);
+    Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o2({rectangle}, shader, texture);
     o2.setPosition(0, 0, -7);
     o2.setRotation(0, frame%360, 0);
     Scene<T> s(camera);

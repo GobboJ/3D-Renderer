@@ -5,9 +5,14 @@
 #include "ObjectInfo.h"
 #include <cmath>
 
-ObjectInfo::ObjectInfo(const Vector3 &position, const Vector3 &rotation, const Vector3 &scale) : position(position),
-                                                                                                 rotation(rotation),
-                                                                                                 scale(scale) {}
+ObjectInfo::ObjectInfo(unsigned int animationSteps, unsigned int currentAnimationStep, const Vector3 &position,
+                       const Vector3 &rotation, const Vector3 &scale) : position(position),
+                                                                        rotation(rotation),
+                                                                        scale(scale),
+                                                                        animationSteps(animationSteps),
+                                                                        currentAnimationStep(currentAnimationStep){
+
+}
 
 void ObjectInfo::setPosition(const double x, const double y, const double z) {
     ObjectInfo::position = {x, y, z};
@@ -67,3 +72,21 @@ void ObjectInfo::computeWorldMatrix() {
             0, 0, 0, 1
     };
 }
+
+unsigned int ObjectInfo::getCurrentAnimationStep() const {
+    return currentAnimationStep;
+}
+
+void ObjectInfo::setCurrentAnimationStep(unsigned int currentAnimationStep) {
+    if (currentAnimationStep < animationSteps)
+        ObjectInfo::currentAnimationStep = currentAnimationStep;
+    else
+        ObjectInfo::currentAnimationStep = animationSteps;
+}
+
+void ObjectInfo::nextAnimationFrame() {
+    currentAnimationStep = (currentAnimationStep + 1) % animationSteps;
+}
+
+
+
