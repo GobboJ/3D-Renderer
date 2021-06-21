@@ -27,6 +27,10 @@ public:
     TriangleIterator<V> begin() const { return TriangleIterator<V>(vertices, indices, false); }
 
     TriangleIterator<V> end() const { return TriangleIterator<V>(vertices, indices, true); }
+
+    const std::vector<V> &getVertices() const {
+        return vertices;
+    }
 };
 
 #endif //INC_3D_RENDERER_SIMPLEMESH_H

@@ -26,6 +26,8 @@ public:
 
     unsigned int getColor() const;
 
+    double distance(SimpleVertex &vertex) const;
+
     void transform(const std::array<double, 16> &matrix);
 
     double project(const std::array<double, 16> &projectionMatrix);

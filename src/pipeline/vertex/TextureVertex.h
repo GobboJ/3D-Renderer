@@ -29,6 +29,8 @@ public:
 
     double getV() const;
 
+    double distance(TextureVertex &vertex) const;
+
     void transform(const std::array<double, 16> &matrix);
 
     double project(const std::array<double, 16> &projectionMatrix);

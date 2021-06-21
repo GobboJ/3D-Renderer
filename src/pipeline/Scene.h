@@ -27,6 +27,7 @@ public:
                 std::make_unique<DedicatedPipelineImpl<target_t, Mesh, Vertex, Shader, Texture...>>(o.getMesh(),
                                                                                                     o.getShader(),
                                                                                                     o.getTextures(),
+                                                                                                    o.getBoundingSphere(),
                                                                                                     o.getInfo()));
     }
 

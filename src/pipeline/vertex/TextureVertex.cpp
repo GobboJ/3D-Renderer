@@ -91,3 +91,7 @@ double TextureVertex::getU() const {
 double TextureVertex::getV() const {
     return v;
 }
+
+double TextureVertex::distance(TextureVertex &vertex) const {
+    return sqrt(pow(vertex.getX() - this->x, 2) + pow(vertex.getY() - this->y, 2) + pow(vertex.getZ() - this->z, 2));
+}

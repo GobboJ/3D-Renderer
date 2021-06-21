@@ -12,6 +12,7 @@
 #include "DedicatedPipeline.h"
 #include "object/ObjectInfo.h"
 #include "util/ChronoMeter.h"
+#include "util/bounding_sphere.h"
 
 struct bounding_box {
     double left;
@@ -24,25 +25,52 @@ struct bounding_box {
 template<class target_t, class Mesh, class Vertex, class Shader, class ...Texture>
 class DedicatedPipelineImpl : public DedicatedPipeline<target_t> {
 private:
+    // TODO Cambiarlo in array di mesh, o cambiare direttamente in object ?
     Mesh mesh;
     Shader shader;
     std::tuple<Texture...> textures;
+    bounding_sphere boundingSphere;
     ObjectInfo *info;
 public:
-    DedicatedPipelineImpl(Mesh mesh, Shader shader, const std::tuple<Texture...> &textures, ObjectInfo *info)
+    DedicatedPipelineImpl(Mesh mesh, Shader shader, const std::tuple<Texture...> &textures,
+                          bounding_sphere boundingSphere, ObjectInfo *info)
             : mesh(
-            mesh), shader(shader), textures(textures), info(info) {}
+            mesh), shader(shader), textures(textures), boundingSphere(boundingSphere), info(info) {}
 
 
-public:
+    // TODO Return bool to count rendered/culled objects
     void render(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height,
                 const std::array<double, 16> &viewMatrix,
                 const std::array<double, 16> &projectionMatrix, const std::array<double, 16> &viewportMatrix) override {
 
         start_chrono(0);
+
+        std::array<double, 16> combined = matrix_multiplication(projectionMatrix, matrix_multiplication(viewMatrix,
+                                                                                                        info->getWorldMatrix()));
+        double left[4], right[4], bottom[4], top[4], near[4], far[4];
+        for (int i = 0; i < 4; i++) {
+            left[i] = combined[i + 12] + combined[i];
+            right[i] = combined[i + 12] - combined[i];
+            bottom[i] = combined[i + 12] + combined[i + 4];
+            top[i] = combined[i + 12] - combined[i + 4];
+            near[i] = combined[i + 12] + combined[i + 8];
+            far[i] = combined[i + 12] - combined[i + 8];
+        }
+
+        double distanceL = signedDistance(left);
+        double distanceR = signedDistance(right);
+        double distanceB = signedDistance(bottom);
+        double distanceT = signedDistance(top);
+        double distanceN = signedDistance(near);
+        double distanceF = signedDistance(far);
+
+        if (distanceL < -boundingSphere.r || distanceR < -boundingSphere.r || distanceB < -boundingSphere.r ||
+            distanceT < -boundingSphere.r || distanceN < -boundingSphere.r || distanceF < -boundingSphere.r)
+            return;
         for (std::array<Vertex, 3> triangle : mesh) {
             start_chrono(7);
             start_chrono(3);
+            /*
             // Model to world
             triangle[0].transform(info->getWorldMatrix());
             triangle[1].transform(info->getWorldMatrix());
@@ -51,17 +79,28 @@ public:
             triangle[0].transform(viewMatrix);
             triangle[1].transform(viewMatrix);
             triangle[2].transform(viewMatrix);
+            */
+            /*
+            Normalization
+            double mag = sqrt(aL * aL + bL * bL + cL * cL);
+            aL /= mag;
+            bL /= mag;
+            cL /= mag;
+            dL /= mag;
+            */
+
+
             // Projection
-            double w1 = triangle[0].project(projectionMatrix);
-            double w2 = triangle[1].project(projectionMatrix);
-            double w3 = triangle[2].project(projectionMatrix);
+            double w1 = triangle[0].project(combined);
+            double w2 = triangle[1].project(combined);
+            double w3 = triangle[2].project(combined);
             // Clip to viewport
             triangle[0].viewportMapping(viewportMatrix);
             triangle[1].viewportMapping(viewportMatrix);
             triangle[2].viewportMapping(viewportMatrix);
             stop_chrono(3);
 
-            bounding_box box = compute_box(triangle[0], triangle[1], triangle[2]);
+            //bounding_box box = compute_box(triangle[0], triangle[1], triangle[2]);
 
             // Barycentric precomputations
             const Vertex &a = triangle[0];
@@ -135,13 +174,41 @@ public:
             }
 #endif
 
-
             //stop_chrono(7);
         }
         stop_chrono(0);
     }
 
 private:
+
+    double signedDistance(double plane[]) {
+        return (plane[0] * boundingSphere.x + plane[1] * boundingSphere.y + plane[2] * boundingSphere.z + plane[3]) /
+               sqrt(pow(plane[0], 2) + pow(plane[1], 2) + pow(plane[2], 2));
+    }
+
+    std::array<double, 16> matrix_multiplication(const std::array<double, 16> &a, const std::array<double, 16> &b) {
+        std::array<double, 16> out{};
+        out[0] = a[0] * b[0] + a[1] * b[4] + a[2] * b[8] + a[3] * b[12];
+        out[1] = a[0] * b[1] + a[1] * b[5] + a[2] * b[9] + a[3] * b[13];
+        out[2] = a[0] * b[2] + a[1] * b[6] + a[2] * b[10] + a[3] * b[14];
+        out[3] = a[0] * b[3] + a[1] * b[7] + a[2] * b[11] + a[3] * b[15];
+
+        out[4] = a[4] * b[0] + a[5] * b[4] + a[6] * b[8] + a[7] * b[12];
+        out[5] = a[4] * b[1] + a[5] * b[5] + a[6] * b[9] + a[7] * b[13];
+        out[6] = a[4] * b[2] + a[5] * b[6] + a[6] * b[10] + a[7] * b[14];
+        out[7] = a[4] * b[3] + a[5] * b[7] + a[6] * b[11] + a[7] * b[15];
+
+        out[8] = a[8] * b[0] + a[9] * b[4] + a[10] * b[8] + a[11] * b[12];
+        out[9] = a[8] * b[1] + a[9] * b[5] + a[10] * b[9] + a[11] * b[13];
+        out[10] = a[8] * b[2] + a[9] * b[6] + a[10] * b[10] + a[11] * b[14];
+        out[11] = a[8] * b[3] + a[9] * b[7] + a[10] * b[11] + a[11] * b[15];
+
+        out[12] = a[12] * b[0] + a[13] * b[4] + a[14] * b[8] + a[15] * b[12];
+        out[13] = a[12] * b[1] + a[13] * b[5] + a[14] * b[9] + a[15] * b[13];
+        out[14] = a[12] * b[2] + a[13] * b[6] + a[14] * b[10] + a[15] * b[14];
+        out[15] = a[12] * b[3] + a[13] * b[7] + a[14] * b[11] + a[15] * b[15];
+        return out;
+    }
 
     /**
      * Computes the triangle area (for barycentric coordinates)
