@@ -8,8 +8,8 @@
 #include "../pipeline/Pipeline.h"
 #include "Shaders.h"
 #include "SceneBuilder.h"
-#include <iterator>
 #include <iostream>
+#include <cstring>
 
 #define WIDTH 150
 #define HEIGHT 50

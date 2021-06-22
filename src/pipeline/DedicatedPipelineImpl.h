@@ -100,7 +100,7 @@ public:
             triangle[2].viewportMapping(viewportMatrix);
             stop_chrono(3);
 
-            //bounding_box box = compute_box(triangle[0], triangle[1], triangle[2]);
+            bounding_box box = compute_box(triangle[0], triangle[1], triangle[2]);
 
             // Barycentric precomputations
             const Vertex &a = triangle[0];
@@ -121,14 +121,15 @@ public:
 
             double den = (v0X * v1Y - v1X * v0Y);
             double invDen = 1.0 / den;
-#define GOBBOJb
+#define GOBBOJ
 #ifndef GOBBOJ
             new_renderer(triangle[0], triangle[1], triangle[2], width, height,
                          v0X, v0Y, v1X, v1Y, den, invDen, target, z_buffer, w1, w2, w3);
 #else
-            for (int r = std::lround(box.top); r < box.bottom; r++) {
+
+            for (int r = std::max(0L,std::lround(box.top)); r < std::min((double)height, box.bottom); r++) {
                 start_chrono(8);
-                for (int c = std::lround(box.left); c < box.right; c++) {
+                for (int c = std::max(0L, std::lround(box.left)); c < std::min((double)width, box.right); c++) {
                     if (r > 0 && r < height && c > 0 && c < width) {
 
                         double A1 = 1.0;

@@ -57,7 +57,10 @@ add_executable(3D_Renderer
         src/main/Shaders.cpp
         src/main/Shaders.h
         src/main/SceneBuilder.cpp
-        src/main/SceneBuilder.h src/pipeline/util/bounding_sphere.h)
+        src/main/SceneBuilder.h
+        src/pipeline/util/bounding_sphere.h
+        src/pipeline/util/ChronoMeter.h
+        src/pipeline/util/ChronoMeter.cpp)
 
 # SDL Executable
 add_executable(3D_Renderer_SDL

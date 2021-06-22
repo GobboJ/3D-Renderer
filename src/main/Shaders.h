@@ -17,7 +17,7 @@
 #include <cmath>
 
 struct CharShader {
-    char operator()(SimpleVertex vertex, char texture) {
+    char operator()(SimpleVertex vertex, std::tuple<char> texture) {
 
         return static_cast<char>((abs(vertex.getZ())) * 10.0 + 0.5) % 10 + '0';
         //return std::to_string(vertex.getZ())[3];
