@@ -11,7 +11,7 @@
  * Represents the rendering pipeline
  * @tparam target_t The type of the target
  */
-template <class target_t>
+template<class target_t>
 class Pipeline {
 
 private:
@@ -53,11 +53,12 @@ public:
      * Renders the scene
      * @param scene Scene to be rendered
      */
-    void render(Scene<target_t> &scene) {
+    int render(Scene<target_t> &scene) {
         // Renders the scene
-        scene.render(target, z_buffer, width, height);
+        int rendered_objects = scene.render(target, z_buffer, width, height);
         // Cleans the z-buffer
         std::fill_n(z_buffer, width * height, 1.0);
+        return rendered_objects;
     }
 
 };

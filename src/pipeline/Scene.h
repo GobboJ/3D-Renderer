@@ -60,7 +60,7 @@ public:
      * @param width The width of the target
      * @param height The height of the target
      */
-    void render(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height) {
+    int render(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height) {
 
         // Gets camera information
         double farPlane = camera.getFarPlane();
@@ -83,12 +83,17 @@ public:
                                                  0, 0, 0, 1};
 
         // Calls the appropriate render method for each dedicated pipeline
+        int rendered_objects = 0;
         for (auto &pipeline : pipelines) {
-            pipeline->render(target, z_buffer, width, height, camera.getViewMatrix(), projectionMatrix, viewportMatrix);
+            bool rendered = pipeline->render(target, z_buffer, width, height, camera.getViewMatrix(), projectionMatrix,
+                                             viewportMatrix);
+            rendered_objects += (rendered) ? 1 : 0;
         }
+        return rendered_objects;
     }
 
     // TODO: memory management
+    // TODO: update docs
 };
 
 #endif //INC_3D_RENDERER_SCENE_H

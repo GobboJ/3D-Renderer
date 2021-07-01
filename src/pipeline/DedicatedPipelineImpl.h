@@ -38,8 +38,7 @@ public:
             mesh), shader(shader), textures(textures), boundingSphere(boundingSphere), info(info) {}
 
 
-    // TODO Return bool to count rendered/culled objects
-    void render(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height,
+    bool render(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height,
                 const std::array<double, 16> &viewMatrix,
                 const std::array<double, 16> &projectionMatrix, const std::array<double, 16> &viewportMatrix) override {
 
@@ -66,29 +65,10 @@ public:
 
         if (distanceL < -boundingSphere.r || distanceR < -boundingSphere.r || distanceB < -boundingSphere.r ||
             distanceT < -boundingSphere.r || distanceN < -boundingSphere.r || distanceF < -boundingSphere.r)
-            return;
+            return false;
         for (std::array<Vertex, 3> triangle : mesh[info->getCurrentAnimationStep()]) {
             start_chrono(7);
             start_chrono(3);
-            /*
-            // Model to world
-            triangle[0].transform(info->getWorldMatrix());
-            triangle[1].transform(info->getWorldMatrix());
-            triangle[2].transform(info->getWorldMatrix());
-            // World to view
-            triangle[0].transform(viewMatrix);
-            triangle[1].transform(viewMatrix);
-            triangle[2].transform(viewMatrix);
-            */
-            /*
-            Normalization
-            double mag = sqrt(aL * aL + bL * bL + cL * cL);
-            aL /= mag;
-            bL /= mag;
-            cL /= mag;
-            dL /= mag;
-            */
-
 
             // Projection
             double w1 = triangle[0].project(combined);
@@ -121,63 +101,73 @@ public:
 
             double den = (v0X * v1Y - v1X * v0Y);
             double invDen = 1.0 / den;
-#define GOBBOJ
-#ifndef GOBBOJ
-            new_renderer(triangle[0], triangle[1], triangle[2], width, height,
-                         v0X, v0Y, v1X, v1Y, den, invDen, target, z_buffer, w1, w2, w3);
-#else
 
-            for (int r = std::max(0L,std::lround(box.top)); r < std::min((double)height, box.bottom); r++) {
-                start_chrono(8);
-                for (int c = std::max(0L, std::lround(box.left)); c < std::min((double)width, box.right); c++) {
-                    if (r > 0 && r < height && c > 0 && c < width) {
+            //scanline_renderer(triangle[0], triangle[1], triangle[2], width, height, v0X, v0Y, v1X, v1Y, den, invDen, target, z_buffer, w1, w2, w3);
 
-                        double A1 = 1.0;
-                        double A2 = 0;
-                        double A3 = 0;
-                        start_chrono(9);
 
-                        double v2X = c - vaX;
-                        double v2Y = r - vaY;
+            box_renderer(target, z_buffer, width, height, triangle, w1, w2, w3, box, vaX, vaY, v0X, v0Y,
+                         v1X, v1Y, den,
+                         invDen);
 
-                        if (den != 0) {
-                            A2 = (v2X * v1Y - v1X * v2Y) * invDen;
-                            A3 = (v0X * v2Y - v2X * v0Y) * invDen;
-                            A1 = 1.0 - A2 - A3;
-                        }
 
-                        stop_chrono(9);
-
-                        start_chrono(6);
-                        if (inside_test(A1, A2, A3)) {
-                            // Z-Buffer testing
-                            double z = 1.0 / (triangle[0].getZ() * (A1) + triangle[1].getZ() * (A2) +
-                                              triangle[2].getZ() * (A3));
-
-                            if (z < z_buffer[r * width + c]) {
-                                start_chrono(4);
-                                // Interpolates the vertex
-                                Vertex interpolated = Vertex::interpolate(triangle[0], triangle[1], triangle[2], A1,
-                                                                          A2, A3, w1, w2, w3);
-                                stop_chrono(4);
-                                start_chrono(5);
-                                // Calls the fragment CharShader
-                                target[r * width + c] = shader(interpolated, textures);
-                                stop_chrono(5);
-                                // Updates Z-Buffer
-                                z_buffer[r * width + c] = z;
-                            }
-                        }
-                        stop_chrono(6);
-                    }
-                    stop_chrono(8);
-                }
-            }
-#endif
 
             //stop_chrono(7);
         }
         stop_chrono(0);
+        return true;
+    }
+
+    inline void box_renderer(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height,
+                             const std::array<Vertex, 3> &triangle, double w1, double w2, double w3,
+                             const bounding_box &box,
+                             double vaX, double vaY, double v0X, double v0Y, double v1X, double v1Y, double den,
+                             double invDen) {
+        for (int r = std::max(0L, lround(box.top)); r < std::min((double) height, box.bottom); r++) {
+            start_chrono(8);
+            for (int c = std::max(0L, lround(box.left)); c < std::min((double) width, box.right); c++) {
+                if (r > 0 && r < height && c > 0 && c < width) {
+
+                    double A1 = 1.0;
+                    double A2 = 0;
+                    double A3 = 0;
+                    start_chrono(9);
+
+                    double v2X = c - vaX;
+                    double v2Y = r - vaY;
+
+                    if (den != 0) {
+                        A2 = (v2X * v1Y - v1X * v2Y) * invDen;
+                        A3 = (v0X * v2Y - v2X * v0Y) * invDen;
+                        A1 = 1.0 - A2 - A3;
+                    }
+
+                    stop_chrono(9);
+
+                    start_chrono(6);
+                    if (inside_test(A1, A2, A3)) {
+                        // Z-Buffer testing
+                        double z = 1.0 / (triangle[0].getZ() * (A1) + triangle[1].getZ() * (A2) +
+                                          triangle[2].getZ() * (A3));
+
+                        if (z < z_buffer[r * width + c]) {
+                            start_chrono(4);
+                            // Interpolates the vertex
+                            Vertex interpolated = Vertex::interpolate(triangle[0], triangle[1], triangle[2], A1,
+                                                                      A2, A3, w1, w2, w3);
+                            stop_chrono(4);
+                            start_chrono(5);
+                            // Calls the fragment CharShader
+                            target[r * width + c] = shader(interpolated, textures);
+                            stop_chrono(5);
+                            // Updates Z-Buffer
+                            z_buffer[r * width + c] = z;
+                        }
+                    }
+                    stop_chrono(6);
+                }
+                stop_chrono(8);
+            }
+        }
     }
 
 private:
@@ -243,24 +233,22 @@ private:
     }
 
 
-    inline void new_renderer(Vertex &v0, Vertex &v1, Vertex &v2, int width, int height,
-                             double v0X,
-                             double v0Y,
-                             double v1X,
-                             double v1Y,
-                             double den,
-                             double invDen,
-                             target_t *target, double *z_buffer, double w1, double w2, double w3) {
+    /**
+     * Unused scan-line renderer
+     * Does not work with some edge cases
+     */
+    inline void scanline_renderer(Vertex &v0, Vertex &v1, Vertex &v2, int width, int height,
+                                  double v0X,
+                                  double v0Y,
+                                  double v1X,
+                                  double v1Y,
+                                  double den,
+                                  double invDen,
+                                  target_t *target, double *z_buffer, double w1, double w2, double w3) {
 
         Vertex v0Orig = v0;
         Vertex v1Orig = (v1);
         Vertex v2Orig = (v2);
-
-        // v0 ----> 3
-        // v1 ----> 7
-
-        // v0 ----> 7
-        // v1 -----> 3
 
         order(v0, v1);
         order(v0, v2);
@@ -293,7 +281,7 @@ private:
                 leftIncrement = acIncrement;
                 rightIncrement = abIncrement;
             }
-            // x0= 588 x1 = 320 y0 = 103 y1 = 117  268/  14
+
             int yStart = std::max((int) y0, 0);
             double xLeft = (y0 == y1) ? x0 : x0 + (yStart - (int) y0) * leftIncrement;
             double xRight = (y0 == y1) ? x1 : x0 + (yStart - (int) y0) * rightIncrement;
@@ -311,9 +299,7 @@ private:
                 int xStart = std::max((int) xLeft, 0);
                 int xEnd = std::min((int) xRight, width);
                 for (int x = xStart; x < xEnd; x++) {
-                    //int targetIndex = y * width + x;
-                    //target[targetIndex] = 0x000000;
-                    // render
+
                     double A1 = 1.0;
                     double A2 = 0;
                     double A3 = 0;

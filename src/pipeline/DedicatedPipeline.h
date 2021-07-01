@@ -11,7 +11,7 @@
  * Describes the base interface of the dedicated rendering pipeline
  * @tparam target_t Type of the target
  */
-template <class target_t>
+template<class target_t>
 class DedicatedPipeline {
 
 public:
@@ -26,8 +26,10 @@ public:
      * @param projectionMatrix The projection matrix
      * @param viewportMatrix The viewport matrix
      */
-    virtual void render(target_t* target, double* z_buffer, unsigned int width, unsigned int height, const std::array<double, 16> &viewMatrix,
-                        const std::array<double, 16> &projectionMatrix, const std::array<double, 16> &viewportMatrix) = 0;
+    virtual bool render(target_t *target, double *z_buffer, unsigned int width, unsigned int height,
+                        const std::array<double, 16> &viewMatrix,
+                        const std::array<double, 16> &projectionMatrix,
+                        const std::array<double, 16> &viewportMatrix) = 0;
 
 };
 

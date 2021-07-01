@@ -128,13 +128,13 @@ void render_window() {
                 frame += difference;
 
                 // Transforms the two cubes each frame
-                sampleScene.getColorCube().setRotation(velocity * frame, 0 ,0);
-                sampleScene.getTextureCube().setRotation(0, velocity * frame, 0);
+                sampleScene.getColorCube().setRotation(((int) (velocity * frame)) % 360, 0, 0);
+                sampleScene.getTextureCube().setRotation(0, ((int) (velocity * frame)) % 360, 0);
                 // Sets the next animation frame
                 // sampleScene.getTextureCube().nextAnimationFrame();
 
                 // Renders the scene
-                p.render(sampleScene.getScene());
+                int rendered_objects = p.render(sampleScene.getScene());
                 SDL_Rect pixel;
                 pixel.w = 1;
                 pixel.h = 1;
@@ -151,8 +151,10 @@ void render_window() {
                 // Computations to find fps
                 totalTime += difference;
                 totalFrames++;
-                SDL_SetWindowTitle(window, ("3D-Renderer [ " + std::to_string(1000.0 / difference) +
-                                            " fps ]").c_str());
+                SDL_SetWindowTitle(window,
+                                   ("3D-Renderer [ Visible objects: " + std::to_string(rendered_objects) + " - " +
+                                    std::to_string(1000.0 / difference) +
+                                    " fps ]").c_str());
 
                 lastTime = currentTime;
                 stop_chrono(1);
