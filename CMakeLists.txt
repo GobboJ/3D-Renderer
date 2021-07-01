@@ -58,6 +58,8 @@ add_executable(3D_Renderer
         src/main/Shaders.h
         src/main/SceneBuilder.cpp
         src/main/SceneBuilder.h
+        src/pipeline/vertex/TextureVertex.cpp
+        src/pipeline/vertex/TextureVertex.h
         src/pipeline/util/BoundingSphere.h
         src/pipeline/util/ChronoMeter.h
         src/pipeline/util/ChronoMeter.cpp)
@@ -91,10 +93,9 @@ add_executable(3D_Renderer_SDL
         src/main/Shaders.h
         src/main/SceneBuilder.cpp
         src/main/SceneBuilder.h
-        src/main/TextureShader.h
         src/pipeline/vertex/TextureVertex.cpp
         src/pipeline/vertex/TextureVertex.h
-        src/pipeline/util/ChronoMeter.h src/pipeline/util/ChronoMeter.cpp src/pipeline/util/BoundingSphere.h)
+        src/pipeline/util/ChronoMeter.h src/pipeline/util/ChronoMeter.cpp src/pipeline/util/BoundingSphere.h src/main/SampleScene.cpp src/main/SampleScene.h)
 
 # Link SDL2 lib
 target_link_libraries(3D_Renderer_SDL ${SDL2_LIBRARIES})

@@ -11,6 +11,7 @@
 #include "../pipeline/Pipeline.h"
 #include "SimpleMesh.h"
 #include "../pipeline/vertex/TextureVertex.h"
+#include "Shaders.h"
 #include <iterator>
 #include <array>
 #include <cstddef>
@@ -113,6 +114,35 @@ Scene<T> createTextureScene(S &shader, Texture &texture, int frame = 0) {
                                                  {4, 0, 1}
                                          });
 
+    const SimpleMesh<SimpleVertex> colorCube({{1,  1,  -1, 0xFF0000},
+                                         {1,  -1, -1, 0xFFFF00},
+                                         {1,  1,  1,  0xFF00FF},
+                                         {1,  -1, 1,  0x0000FF},
+                                         {-1, 1,  -1, 0x00FFFF},
+                                         {-1, -1, -1, 0x00FF00},
+                                         {-1, 1,  1,  0x80FF00},
+                                         {-1, -1, 1,  0x808080}},
+                                        {
+                                                // Top
+                                                {4, 2, 0},
+                                                {4, 6, 2},
+                                                // Bottom
+                                                {1, 3, 7},
+                                                {1, 7, 5},
+                                                // Front
+                                                {2, 7, 3},
+                                                {2, 6, 7},
+                                                // Left
+                                                {6, 5, 7},
+                                                {6, 4, 5},
+                                                // Right
+                                                {0, 3, 1},
+                                                {0, 2, 3},
+                                                // Back
+                                                {4, 1, 5},
+                                                {4, 0, 1}
+                                        });
+
     const SimpleMesh<TextureVertex> newCube({{0, 0, 0, 0, 0},
                                              {0, 0, 0, 1, 1},
                                              {0, 0, 0, 1, 0},// 0 - 2
@@ -194,17 +224,23 @@ Scene<T> createTextureScene(S &shader, Texture &texture, int frame = 0) {
 
     int amount = (frame)%360;
     Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o({newCube, newCube2}, shader, texture);
-    o.setPosition(0, 0, -3);
+    o.setPosition(1, 0, -3);
     o.setScale(1, 1, 1);
     o.setRotation(0, amount, 0);
     //o.nextAnimationFrame(); // TODO Change this so that the scene is not created each time
 
+    ColorShader c;
+    Object<SimpleMesh<SimpleVertex>, SimpleVertex,ColorShader, Texture>  colorObject({colorCube}, c, texture);
+    colorObject.setPosition(-1,0,-3);
+    colorObject.setRotation(amount,0,0);
+    colorObject.setScale(0.5,0.5,0.5);
     Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o2({rectangle}, shader, texture);
     o2.setPosition(0, 0, -7);
     o2.setRotation(0, frame%360, 0);
     Scene<T> s(camera);
     //s.add(o2);
     s.add(o);
+    s.add(colorObject);
     return s;
 }
 

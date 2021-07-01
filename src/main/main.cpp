@@ -8,6 +8,7 @@
 #include "../pipeline/Pipeline.h"
 #include "Shaders.h"
 #include "SceneBuilder.h"
+#include "SampleScene.h"
 #include <iostream>
 #include <cstring>
 
@@ -28,12 +29,15 @@ void render_char() {
     memset(target, '.', WIDTH * HEIGHT);
 
     // Creates the char shader and a simple scene
-    CharShader shader{};
-    Scene<char> s = createSimpleScene<char, CharShader, char>(shader, 'a');
+    //CharShader shader{};
+    //Scene<char> s = createSimpleScene<char, CharShader, char>(shader, 'a');
+    myTexture t;
+    SampleScene<char, CharShader, CharShader, myTexture> sampleScene(t);
+
 
     // Creates the pipeline and renders the scene
     Pipeline<char> p(target, WIDTH, HEIGHT);
-    p.render(s);
+    p.render(sampleScene.getScene());
 
 
     // Prints target

@@ -88,7 +88,7 @@ public:
 
     /**
      * Returns the resulting TextureVertex from the interpolation of v1, v2, v3,
-     * using the barycentring coordinates A1, A2, A3 and the w components w0, w1, w2
+     * using the barycentric coordinates A1, A2, A3 and the w components w0, w1, w2
      * @param v1 First vertex
      * @param v2 Second vertex
      * @param v3 Third vertex

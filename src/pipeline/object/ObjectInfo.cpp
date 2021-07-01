@@ -10,12 +10,11 @@ ObjectInfo::ObjectInfo(unsigned int animationSteps, unsigned int currentAnimatio
                                                                         rotation(rotation),
                                                                         scale(scale),
                                                                         animationSteps(animationSteps),
-                                                                        currentAnimationStep(currentAnimationStep) {
-    modelMatrix = {1, 0, 0, 0,
-                   0, 1, 0, 0,
-                   0, 0, 1, 0,
-                   0, 0, 0, 1};
-}
+                                                                        currentAnimationStep(currentAnimationStep),
+                                                                        modelMatrix({1, 0, 0, 0,
+                                                                                     0, 1, 0, 0,
+                                                                                     0, 0, 1, 0,
+                                                                                     0, 0, 0, 1}) {}
 
 void ObjectInfo::setPosition(const double x, const double y, const double z) {
     ObjectInfo::position = {x, y, z};

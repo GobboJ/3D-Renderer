@@ -7,7 +7,7 @@
 #include "../pipeline/Pipeline.h"
 #include "SDL.h"
 #include "SceneBuilder.h"
-#include "TextureShader.h"
+#include "SampleScene.h"
 #include <iterator>
 #include <cstddef>
 #include <iostream>
@@ -16,8 +16,8 @@
 /**
  * Window size
  */
-#define WIDTH 320
-#define HEIGHT 240
+#define WIDTH 640
+#define HEIGHT 480
 
 
 // TODO Split in two, shader and scene before main loop, render inside
@@ -129,6 +129,10 @@ void render_window() {
                 }
             }
 
+            SampleScene<Uint32, ColorShader, TextureShader, myTexture> sampleScene(t);
+            Pipeline<Uint32> p(colorTarget, WIDTH, HEIGHT);
+
+
             // Main loop
             while (!quit) {
 
@@ -142,7 +146,7 @@ void render_window() {
                     }
                 }
 
-                //Fill the surface white
+                // Fill the surface white
                 SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
                 for (int y = 0; y < HEIGHT; y++) {
                     for (int x = 0; x < WIDTH; x++) {
@@ -156,7 +160,23 @@ void render_window() {
                 frame += difference;
 
                 //
-                render_color(screenSurface, t, velocity * frame, colorTarget);
+                //render_color(screenSurface, t, velocity * frame, colorTarget);
+                sampleScene.getColorCube().setRotation(velocity * frame, 0 ,0);
+                sampleScene.getTextureCube().setRotation(0, velocity * frame, 0);
+
+                p.render(sampleScene.getScene());
+                SDL_Rect pixel;
+                pixel.w = 1;
+                pixel.h = 1;
+                for (int y = 0; y < HEIGHT; y++) {
+                    for (int x = 0; x < WIDTH; x++) {
+                        pixel.x = x;
+                        pixel.y = y;
+                        if (SDL_FillRect(screenSurface, &pixel, colorTarget[y * WIDTH + x])) {
+                            std::cerr << "Error!";
+                        }
+                    }
+                }
 
                 // Computations to find fps
                 totalTime += difference;

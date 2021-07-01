@@ -130,7 +130,7 @@ public:
     }
 
     /**
-     * Advances to the next animation fram
+     * Advances to the next animation frame
      */
     void nextAnimationFrame() {
         info->nextAnimationFrame();
