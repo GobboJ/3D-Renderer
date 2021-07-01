@@ -21,7 +21,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Release)
     if(WIN32)
         message("[!] Windows detected")
         set(CMAKE_CXX_FLAGS_RELEASE "/O2")
-    elseif(LINUX) # Linux or else
+    elseif(UNIX) # Linux or else
         message("[!] Linux detected")
         set(CMAKE_CXX_FLAGS_RELEASE "-O2")
     else()
@@ -58,7 +58,7 @@ add_executable(3D_Renderer
         src/main/Shaders.h
         src/main/SceneBuilder.cpp
         src/main/SceneBuilder.h
-        src/pipeline/util/bounding_sphere.h
+        src/pipeline/util/BoundingSphere.h
         src/pipeline/util/ChronoMeter.h
         src/pipeline/util/ChronoMeter.cpp)
 
@@ -94,7 +94,7 @@ add_executable(3D_Renderer_SDL
         src/main/TextureShader.h
         src/pipeline/vertex/TextureVertex.cpp
         src/pipeline/vertex/TextureVertex.h
-        src/pipeline/util/ChronoMeter.h src/pipeline/util/ChronoMeter.cpp src/pipeline/util/bounding_sphere.h)
+        src/pipeline/util/ChronoMeter.h src/pipeline/util/ChronoMeter.cpp src/pipeline/util/BoundingSphere.h)
 
 # Link SDL2 lib
 target_link_libraries(3D_Renderer_SDL ${SDL2_LIBRARIES})

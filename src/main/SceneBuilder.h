@@ -196,7 +196,7 @@ Scene<T> createTextureScene(S &shader, Texture &texture, int frame = 0) {
     Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o({newCube, newCube2}, shader, texture);
     o.setPosition(0, 0, -3);
     o.setScale(1, 1, 1);
-    o.setRotation(amount, amount, amount);
+    o.setRotation(0, amount, 0);
     //o.nextAnimationFrame(); // TODO Change this so that the scene is not created each time
 
     Object<SimpleMesh<TextureVertex>, TextureVertex, S, Texture> o2({rectangle}, shader, texture);

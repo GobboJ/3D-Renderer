@@ -7,13 +7,20 @@
 #ifndef INC_3D_RENDERER_CAMERA_H
 #define INC_3D_RENDERER_CAMERA_H
 
-
+/**
+ * Represents a Camera in the scene
+ */
 class Camera {
-private:
-    std::array<double, 16> viewMatrix{};
 
+private:
+
+    // View Matrix (World -> Camera coordinates)
+    std::array<double, 16> viewMatrix{};
+    // Vertical field of view
     double verticalFieldOfView;
+    // Near plane
     double nearPlane;
+    // Far plane
     double farPlane;
 
 public:
@@ -33,7 +40,7 @@ public:
            const Vector3 &up_vector = {0, 1, 0});
 
     /**
-     * Creates a new FPS camera.
+     * Creates a new FPS camera. NOT IMPLEMENTED
      *
      * @param verticalFieldOfView Vertical FOV of the camera
      * @param nearPlane Near projection plane
@@ -51,11 +58,21 @@ public:
      */
     const std::array<double, 16> &getViewMatrix() const;
 
+    /**
+     * Returns the near plane
+     */
     double getNearPlane() const;
 
+    /**
+     * Returns the far plane
+     */
     double getFarPlane() const;
 
+    /**
+     * Returns the vertical field of view
+     */
     double getVerticalFieldOfView() const;
+
 };
 
 #endif //INC_3D_RENDERER_CAMERA_H

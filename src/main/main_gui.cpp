@@ -1,6 +1,7 @@
 //
 // Created by Jonathan on 06/05/2021.
 //
+
 #include "../pipeline/Scene.h"
 #include "../pipeline/Camera.h"
 #include "../pipeline/Pipeline.h"
@@ -12,22 +13,27 @@
 #include <iostream>
 #include <string>
 
-#define WIDTH 1280
-#define HEIGHT 720
+/**
+ * Window size
+ */
+#define WIDTH 320
+#define HEIGHT 240
 
-//Screen dimension constants
-const int SCREEN_WIDTH = WIDTH;
-const int SCREEN_HEIGHT = HEIGHT;
 
-
+// TODO Split in two, shader and scene before main loop, render inside
 void render_color(SDL_Surface *screenSurface, myTexture &texture, int frame, Uint32 *colorTarget) {
 
+    // Creates the texture shader
     TextureShader shader{};
 
+    // Creates a scene
     Scene<Uint32> s = createTextureScene<Uint32, TextureShader, myTexture>(shader, texture, frame);
+
+    // Creates the pipeline and renders the scene
     Pipeline<Uint32> p(colorTarget, WIDTH, HEIGHT);
     p.render(s);
 
+    // Copies the output target on the surface
     SDL_Rect pixel;
     pixel.w = 1;
     pixel.h = 1;
@@ -40,63 +46,75 @@ void render_color(SDL_Surface *screenSurface, myTexture &texture, int frame, Uin
             }
         }
     }
+
 }
 
+
+/**
+ * Returns the color of the surface at coordinate (x,y)
+ */
 Uint32 getpixel(SDL_Surface *surface, int x, int y) {
     int bpp = surface->format->BytesPerPixel;
-    /* Here p is the address to the pixel we want to retrieve */
     Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
     switch (bpp) {
         case 1:
             return *p;
-            break;
-
         case 2:
             return *(Uint16 *) p;
-            break;
-
         case 3:
             if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
                 return p[0] << 16 | p[1] << 8 | p[2];
             else
                 return p[0] | p[1] << 8 | p[2] << 16;
-            break;
-
         case 4:
             return *(Uint32 *) p;
             break;
-
         default:
-            return 0;       /* shouldn't happen, but avoids warnings */
+            return 0;
     }
 }
 
+
+/**
+ * Render a scene on the SDL window
+ */
 void render_window() {
-    //Initialize SDL
+
+    // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     } else {
 
-        // Create the window The window we'll be rendering to
-        SDL_Window *window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                              SCREEN_WIDTH,
-                                              SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-        if (window == NULL) {
+        // Creates the window
+        SDL_Window *window = SDL_CreateWindow("3D-Renderer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH,
+                                              HEIGHT, SDL_WINDOW_SHOWN);
+        if (window == nullptr) {
             printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         } else {
-            //Main loop flag
-            bool quit = false;
 
-            //Event handler
+            // Quit application flag
+            bool quit = false;
+            // Event handler
             SDL_Event e;
-            int frame = 0;
+
+            // Frame counting
+            unsigned int frame = 0;
             unsigned int lastTime = 0;
             unsigned int totalTime = 0;
             unsigned int totalFrames = 0;
+            unsigned int currentTime;
+            unsigned int difference;
+
+            double velocity = 0.1;
+
             Uint32 *colorTarget = new Uint32[WIDTH * HEIGHT];
-            //Get window surface The surface contained by the window
+            // Get the surface contained by the window
             SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
+
+
+            // Reads the texture
+            // TODO Move texture reading somewhere else
             SDL_Surface *texture = SDL_LoadBMP("texture.bmp");
             if (texture == nullptr) {
                 std::cerr << "Missing textures!!";
@@ -110,12 +128,15 @@ void render_window() {
                     t.texture.push_back(getpixel(texture, x, y));
                 }
             }
-            //While application is running
+
+            // Main loop
             while (!quit) {
+
                 start_chrono(1);
-                //Handle events on queue
+
+                // Handle events on queue
                 while (SDL_PollEvent(&e) != 0) {
-                    //User requests quit
+                    // Quit event received
                     if (e.type == SDL_QUIT) {
                         quit = true;
                     }
@@ -129,18 +150,15 @@ void render_window() {
                     }
                 }
 
-                // |11|22|33|44|55|66|77| 60fps
-                // |11111111111|
-                unsigned int currentTime = SDL_GetTicks();
-
-                unsigned int difference = currentTime - lastTime;
-                // 60 : 1000ms = x : 3760
-                //frame = 60 * (SDL_GetTicks());
-                double velocity = 0.1;
+                // Computations to fix timesteps
+                currentTime = SDL_GetTicks();
+                difference = currentTime - lastTime;
                 frame += difference;
+
+                //
                 render_color(screenSurface, t, velocity * frame, colorTarget);
 
-
+                // Computations to find fps
                 totalTime += difference;
                 totalFrames++;
                 SDL_SetWindowTitle(window, ("3D-Renderer [ " + std::to_string(1000.0 / difference) +
@@ -183,5 +201,6 @@ int main(int argc, char *argv[]) {
     print_chrono_info("Row          ", 8);
     print_chrono_info("Baricentric 1", 9);
     //print_chrono_info("Baricentric 2", 10);
+
     return 0;
 }

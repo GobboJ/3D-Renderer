@@ -7,6 +7,7 @@
 
 #include "../pipeline/vertex/TextureVertex.h"
 
+// TODO Move all to Shaders.h
 struct myTexture {
     unsigned int w{};
     unsigned int h{};

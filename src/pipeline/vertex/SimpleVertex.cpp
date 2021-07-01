@@ -62,9 +62,13 @@ SimpleVertex::interpolate(const SimpleVertex &v1, const SimpleVertex &v2, const 
     Vector3 v2Pos = {v2.getX(), v2.getY(), v2.getZ()};
     Vector3 v3Pos = {v3.getX(), v3.getY(), v3.getZ()};
 
+    // Computes the interpolated position
     Vector3 pos = (A1 / sum) * v1Pos + (A2 / sum) * v2Pos + (A3 / sum) * v3Pos;
-    double z_correction =
-            (A1 / sum) * v1.getZ() + (A2 / sum) * v2.getZ() + (A3 / sum) * v3.getZ(); // ?? E' sempre uguale a pos.z
+
+    // Computes the correct z (could be useless)
+    //double z_correction = (A1 / sum) * v1.getZ() + (A2 / sum) * v2.getZ() + (A3 / sum) * v3.getZ();
+
+    // Interpolates the color
 
     double a = (A1 / sum);
     double b = (A2 / sum);
@@ -94,8 +98,8 @@ SimpleVertex::interpolate(const SimpleVertex &v1, const SimpleVertex &v2, const 
 
     unsigned int color = (redColor << 16) | (greenColor << 8) | blueColor;
 
-    SimpleVertex v = {pos.getX(), pos.getY(), z_correction, color};
-
+    // Creates the interpolated vertex
+    SimpleVertex v = {pos.getX(), pos.getY(), pos.getZ(), color};
     return v;
 }
 

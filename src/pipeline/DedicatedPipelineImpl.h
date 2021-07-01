@@ -12,7 +12,7 @@
 #include "DedicatedPipeline.h"
 #include "object/ObjectInfo.h"
 #include "util/ChronoMeter.h"
-#include "util/bounding_sphere.h"
+#include "util/BoundingSphere.h"
 
 struct bounding_box {
     double left;
@@ -32,7 +32,7 @@ private:
     bounding_sphere boundingSphere;
     ObjectInfo *info;
 public:
-    DedicatedPipelineImpl(Mesh mesh, Shader shader, const std::tuple<Texture...> &textures,
+    DedicatedPipelineImpl(Mesh &mesh, Shader &shader, const std::tuple<Texture...> &textures,
                           bounding_sphere boundingSphere, ObjectInfo *info)
             : mesh(
             mesh), shader(shader), textures(textures), boundingSphere(boundingSphere), info(info) {}
@@ -46,7 +46,7 @@ public:
         start_chrono(0);
 
         std::array<double, 16> combined = matrix_multiplication(projectionMatrix, matrix_multiplication(viewMatrix,
-                                                                                                        info->getWorldMatrix()));
+                                                                                                        info->getModelMatrix()));
         double left[4], right[4], bottom[4], top[4], near[4], far[4];
         for (int i = 0; i < 4; i++) {
             left[i] = combined[i + 12] + combined[i];

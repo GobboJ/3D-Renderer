@@ -16,6 +16,8 @@
 #include <string>
 #include <cmath>
 
+
+
 struct CharShader {
     char operator()(SimpleVertex vertex, std::tuple<char> texture) {
 
@@ -24,6 +26,7 @@ struct CharShader {
     }
 };
 
+// TODO Fix this
 struct ColorShader {
     uint32_t operator()(SimpleVertex vertex) {
 

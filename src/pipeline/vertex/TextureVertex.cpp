@@ -60,25 +60,25 @@ TextureVertex::interpolate(const TextureVertex &v1, const TextureVertex &v2, con
 
 
 
-    //Vector3 pos = (A1) * v1Pos + (A2) * v2Pos + (A3) * v3Pos;
+    // Computes the interpolated position
     Vector3 pos{v1.getX() * A1 + v2.getX() * A2 + v3.getX() * A3,
                 v1.getY() * A1 + v2.getY() * A2 + v3.getY() * A3,
                 v1.getZ() * A1 + v2.getZ() * A2 + v3.getZ() * A3};
 
-    /*double z_correction =
-            (A1) * v1.getZ() + (A2) * v2.getZ() + (A3) * v3.getZ(); // ?? E' sempre uguale a pos.z
-*/
+    // Computes the correct z (could be useless)
+    //double z_correction = (A1 / sum) * v1.getZ() + (A2 / sum) * v2.getZ() + (A3 / sum) * v3.getZ();
 
     double invW0 = A1 / w0;
     double invW1 = A2 / w1;
     double invW2 = A3 / w2;
     double sum = invW0 + invW1 + invW2;
 
+    // Computes the interpolated texture coordinates
     double int_u = (invW0 * v1.getU() + invW1 * v2.getU() + invW2 * v3.getU()) / sum;
     double int_v = (invW0 * v1.getV() + invW1 * v2.getV() + invW2 * v3.getV()) / sum;
 
+    // Creates the interpolated vertex
     TextureVertex v = {pos.getX(), pos.getY(), pos.getZ(), int_u, int_v};
-
     return v;
 }
 
