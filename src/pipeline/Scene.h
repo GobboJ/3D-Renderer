@@ -46,7 +46,7 @@ public:
     void add(const Object<Mesh, Vertex, Shader, Texture...> &o) {
         // Creates the dedicated pipeline for the new object and adds it to the vector
         pipelines.push_back(
-                std::make_unique<DedicatedPipelineImpl<target_t, Mesh, Vertex, Shader, Texture...>>(o.getMesh(),
+                std::make_unique<DedicatedPipelineImpl<target_t, Mesh, Vertex, Shader, Texture...>>(o.getMeshes(),
                                                                                                     o.getShader(),
                                                                                                     o.getTextures(),
                                                                                                     o.getBoundingSphere(),

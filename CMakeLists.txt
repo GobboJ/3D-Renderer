@@ -56,8 +56,6 @@ add_executable(3D_Renderer
         src/main/SimpleMesh.h
         src/main/Shaders.cpp
         src/main/Shaders.h
-        src/main/SceneBuilder.cpp
-        src/main/SceneBuilder.h
         src/pipeline/vertex/TextureVertex.cpp
         src/pipeline/vertex/TextureVertex.h
         src/pipeline/util/BoundingSphere.h
@@ -91,8 +89,6 @@ add_executable(3D_Renderer_SDL
         src/main/SimpleMesh.h
         src/main/Shaders.cpp
         src/main/Shaders.h
-        src/main/SceneBuilder.cpp
-        src/main/SceneBuilder.h
         src/pipeline/vertex/TextureVertex.cpp
         src/pipeline/vertex/TextureVertex.h
         src/pipeline/util/ChronoMeter.h src/pipeline/util/ChronoMeter.cpp src/pipeline/util/BoundingSphere.h src/main/SampleScene.cpp src/main/SampleScene.h)

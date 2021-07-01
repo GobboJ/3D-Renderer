@@ -7,7 +7,6 @@
 #include "../pipeline/vertex/SimpleVertex.h"
 #include "../pipeline/Pipeline.h"
 #include "Shaders.h"
-#include "SceneBuilder.h"
 #include "SampleScene.h"
 #include <iostream>
 #include <cstring>
@@ -28,9 +27,7 @@ void render_char() {
     char target[WIDTH * HEIGHT];
     memset(target, '.', WIDTH * HEIGHT);
 
-    // Creates the char shader and a simple scene
-    //CharShader shader{};
-    //Scene<char> s = createSimpleScene<char, CharShader, char>(shader, 'a');
+    // Creates a fake texture and the example scene
     myTexture t;
     SampleScene<char, CharShader, CharShader, myTexture> sampleScene(t);
 

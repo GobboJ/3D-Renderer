@@ -6,7 +6,6 @@
 #include "../pipeline/Camera.h"
 #include "../pipeline/Pipeline.h"
 #include "SDL.h"
-#include "SceneBuilder.h"
 #include "SampleScene.h"
 #include <iterator>
 #include <cstddef>
@@ -18,36 +17,6 @@
  */
 #define WIDTH 640
 #define HEIGHT 480
-
-
-// TODO Split in two, shader and scene before main loop, render inside
-void render_color(SDL_Surface *screenSurface, myTexture &texture, int frame, Uint32 *colorTarget) {
-
-    // Creates the texture shader
-    TextureShader shader{};
-
-    // Creates a scene
-    Scene<Uint32> s = createTextureScene<Uint32, TextureShader, myTexture>(shader, texture, frame);
-
-    // Creates the pipeline and renders the scene
-    Pipeline<Uint32> p(colorTarget, WIDTH, HEIGHT);
-    p.render(s);
-
-    // Copies the output target on the surface
-    SDL_Rect pixel;
-    pixel.w = 1;
-    pixel.h = 1;
-    for (int y = 0; y < HEIGHT; y++) {
-        for (int x = 0; x < WIDTH; x++) {
-            pixel.x = x;
-            pixel.y = y;
-            if (SDL_FillRect(screenSurface, &pixel, colorTarget[y * WIDTH + x])) {
-                std::cerr << "Error!";
-            }
-        }
-    }
-
-}
 
 
 /**
@@ -114,7 +83,6 @@ void render_window() {
 
 
             // Reads the texture
-            // TODO Move texture reading somewhere else
             SDL_Surface *texture = SDL_LoadBMP("texture.bmp");
             if (texture == nullptr) {
                 std::cerr << "Missing textures!!";
@@ -129,9 +97,9 @@ void render_window() {
                 }
             }
 
+            // Creates the example scene and the pipeline
             SampleScene<Uint32, ColorShader, TextureShader, myTexture> sampleScene(t);
             Pipeline<Uint32> p(colorTarget, WIDTH, HEIGHT);
-
 
             // Main loop
             while (!quit) {
@@ -159,11 +127,13 @@ void render_window() {
                 difference = currentTime - lastTime;
                 frame += difference;
 
-                //
-                //render_color(screenSurface, t, velocity * frame, colorTarget);
+                // Transforms the two cubes each frame
                 sampleScene.getColorCube().setRotation(velocity * frame, 0 ,0);
                 sampleScene.getTextureCube().setRotation(0, velocity * frame, 0);
+                // Sets the next animation frame
+                // sampleScene.getTextureCube().nextAnimationFrame();
 
+                // Renders the scene
                 p.render(sampleScene.getScene());
                 SDL_Rect pixel;
                 pixel.w = 1;

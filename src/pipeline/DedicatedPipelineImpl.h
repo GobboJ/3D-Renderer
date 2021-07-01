@@ -9,6 +9,7 @@
 #include <tuple>
 #include <iostream>
 #include <algorithm>
+#include <vector>
 #include "DedicatedPipeline.h"
 #include "object/ObjectInfo.h"
 #include "util/ChronoMeter.h"
@@ -25,14 +26,13 @@ struct bounding_box {
 template<class target_t, class Mesh, class Vertex, class Shader, class ...Texture>
 class DedicatedPipelineImpl : public DedicatedPipeline<target_t> {
 private:
-    // TODO Cambiarlo in array di mesh, o cambiare direttamente in object ?
-    Mesh mesh;
+    std::vector<Mesh> mesh;
     Shader shader;
     std::tuple<Texture...> textures;
     bounding_sphere boundingSphere;
     ObjectInfo *info;
 public:
-    DedicatedPipelineImpl(Mesh &mesh, Shader &shader, const std::tuple<Texture...> &textures,
+    DedicatedPipelineImpl(std::vector<Mesh> &mesh, Shader &shader, const std::tuple<Texture...> &textures,
                           bounding_sphere boundingSphere, ObjectInfo *info)
             : mesh(
             mesh), shader(shader), textures(textures), boundingSphere(boundingSphere), info(info) {}
@@ -67,7 +67,7 @@ public:
         if (distanceL < -boundingSphere.r || distanceR < -boundingSphere.r || distanceB < -boundingSphere.r ||
             distanceT < -boundingSphere.r || distanceN < -boundingSphere.r || distanceF < -boundingSphere.r)
             return;
-        for (std::array<Vertex, 3> triangle : mesh) {
+        for (std::array<Vertex, 3> triangle : mesh[info->getCurrentAnimationStep()]) {
             start_chrono(7);
             start_chrono(3);
             /*

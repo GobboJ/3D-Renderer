@@ -95,6 +95,13 @@ public:
     }
 
     /**
+     * Returns all the meshes
+     */
+    std::vector<Mesh> getMeshes() const {
+        return mesh;
+    }
+
+    /**
      * Returns the current animation mesh
      */
     Mesh getMesh() const {
