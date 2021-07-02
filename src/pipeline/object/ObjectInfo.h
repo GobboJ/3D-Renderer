@@ -14,18 +14,35 @@
 class ObjectInfo {
 
 private:
-    // Position of the object
+
+    /**
+     * Position of the object
+     */
     Vector3 position;
-    // Rotation of the object
+
+    /**
+     * Rotation of the object
+     */
     Vector3 rotation;
-    // Scale of the object
+
+    /**
+     * Scale of the object
+     */
     Vector3 scale;
-    // Current animation frame
+
+    /**
+     * Current animation frame
+     */
     unsigned int animationSteps;
-    // Total number of animation frames
+
+    /**
+     * Total number of animation frames
+     */
     unsigned int currentAnimationStep;
 
-    // Model matrix (Local -> World coordinates)
+    /**
+     * Model matrix (Local -> World coordinates)
+     */
     std::array<double, 16> modelMatrix;
 
     /**
@@ -64,21 +81,25 @@ public:
 
     /**
      * Returns the position of the object
+     * @return the position of the object
      */
     const Vector3 &getPosition() const;
 
     /**
      * Returns the rotation of the object
+     * @return the rotation of the object
      */
     const Vector3 &getRotation() const;
 
     /**
      * Returns the scale of the object
+     * @return the scale of the object
      */
     const Vector3 &getScale() const;
 
     /**
      * Returns the current animation step
+     * @return the current animation step
      */
     unsigned int getCurrentAnimationStep() const;
 
@@ -95,7 +116,7 @@ public:
 
     /**
      * Returns the model matrix
-     * @return
+     * @return the model matrix
      */
     const std::array<double, 16> &getModelMatrix() const;
 

@@ -66,7 +66,7 @@ TextureVertex::interpolate(const TextureVertex &v1, const TextureVertex &v2, con
                 v1.getZ() * A1 + v2.getZ() * A2 + v3.getZ() * A3};
 
     // Computes the correct z (could be useless)
-    //double z_correction = (A1 / sum) * v1.getZ() + (A2 / sum) * v2.getZ() + (A3 / sum) * v3.getZ();
+    // double z_correction = (A1 / sum) * v1.getZ() + (A2 / sum) * v2.getZ() + (A3 / sum) * v3.getZ();
 
     double invW0 = A1 / w0;
     double invW1 = A2 / w1;

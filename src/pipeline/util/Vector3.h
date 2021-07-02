@@ -11,12 +11,22 @@
  * Represents a three dimensional vector
  */
 class Vector3 {
+
 private:
-    // First component
+
+    /**
+     * First component
+     */
     double x;
-    // Second component
+
+    /**
+     * Second component
+     */
     double y;
-    // Third component
+
+    /**
+     * Third component
+     */
     double z;
 
 public:
@@ -31,21 +41,25 @@ public:
 
     /**
      * Returns the first component of the vector
+     * @return the first component of the vector
      */
     double getX() const;
 
     /**
      * Returns the second component of the vector
+     * @return the second component of the vector
      */
     double getY() const;
 
     /**
      * Returns the third component of the vector
+     * @return the third component of the vector
      */
     double getZ() const;
 
     /**
      * Computes the norm of the vector
+     * @return the norm of the vector
      */
     double norm() const;
 
@@ -134,8 +148,6 @@ inline Vector3 operator-(const Vector3 &u) {
 inline Vector3 operator-(const Vector3 &u, const Vector3 &v) {
     return u + (-v);
 }
-
-
 
 
 #endif //INC_3D_RENDERER_VECTOR3_H

@@ -21,19 +21,33 @@ template<class Mesh, class Vertex, class Shader, class ...Texture>
 class Object {
 
 private:
-    // Vector of meshes (animation frames)
+
+    /**
+     * Vector of meshes (animation frames)
+     */
     const std::vector<Mesh> mesh;
-    // Shader to be applied to the object
+
+    /**
+     * Shader to be applied to the object
+     */
     const Shader shader;
-    // Textures to be applied to the object
+
+
+    /**
+     * Textures to be applied to the object
+     */
     const std::tuple<Texture...> textures;
-    // Bounding spheres for each mesh
+
+    /**
+     * Bounding spheres for each mesh
+     */
     std::vector<bounding_sphere> boundingSpheres;
-    // Metadata of the object
+
+    /**
+     * Metadata of the object
+     */
     ObjectInfo *info;
 
-
-    // TODO: Memory management: shared_ptr
 
 public:
 
@@ -96,6 +110,7 @@ public:
 
     /**
      * Returns all the meshes
+     * @return The vector of meshes
      */
     std::vector<Mesh> getMeshes() const {
         return mesh;
@@ -103,13 +118,23 @@ public:
 
     /**
      * Returns the current animation mesh
+     * @return The current animation mesh
      */
     Mesh getMesh() const {
         return mesh[info->getCurrentAnimationStep()];
     }
 
     /**
+     * Returns the bounding spheres
+     * @return The bounding spheres
+     */
+    std::vector<bounding_sphere> getBoundingSpheres() const {
+        return boundingSpheres;
+    }
+
+    /**
      * Returns the bounding sphere of the current animation mesh
+     * @return The bounding sphere of the current animation mesh
      */
     bounding_sphere getBoundingSphere() const {
         return boundingSpheres[info->getCurrentAnimationStep()];
@@ -117,6 +142,7 @@ public:
 
     /**
      * Returns the shader
+     * @return The shader
      */
     Shader getShader() const {
         return shader;
@@ -124,13 +150,15 @@ public:
 
     /**
      * Returns the textures
+     * @return The textures
      */
     const std::tuple<Texture...> &getTextures() const {
         return textures;
     }
 
     /**
-     * Returns the metadata
+     * Returns the metadata of the object
+     * @return The metadata of the object
      */
     ObjectInfo *getInfo() const {
         return info;

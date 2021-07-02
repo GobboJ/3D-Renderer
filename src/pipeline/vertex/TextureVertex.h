@@ -12,16 +12,32 @@
  * Represents a SimpleVertex with a position (x,y,z) and texture coordinates (u,v)
  */
 class TextureVertex {
+
 private:
-    // Coordinate x of the position
+
+    /**
+     * Coordinate x of the position
+     */
     double x;
-    // Coordinate y of the position
+
+    /**
+     * Coordinate y of the position
+     */
     double y;
-    // Coordinate z of the position
+
+    /**
+     * Coordinate z of the position
+     */
     double z;
-    // Coordinate u of the texture
+
+    /**
+     * Coordinate u of the texture
+     */
     double u;
-    // Coordinate v of the texture
+
+    /**
+     * Coordinate v of the texture
+     */
     double v;
 
     /**
@@ -33,30 +49,44 @@ private:
     inline double multiply(const std::array<double, 16> &matrix, int index) const;
 
 public:
+
+    /**
+     * Constructor of TextureVertex
+     * @param x Coordinate x of the position
+     * @param y Coordinate y of the position
+     * @param z Coordinate z of the position
+     * @param u Coordinate u of the texture
+     * @param v Coordinate v of the texture
+     */
     TextureVertex(double x, double y, double z, double u, double v);
 
     /**
      * Returns the coordinate x
+     * @return the coordinate x
      */
     double getX() const;
 
     /**
      * Returns the coordinate y
+     * @return the coordinate y
      */
     double getY() const;
 
     /**
      * Returns the coordinate z
+     * @return the coordinate z
      */
     double getZ() const;
 
     /**
      * Returns the coordinate u
+     * @return the coordinate u
      */
     double getU() const;
 
     /**
      * Returns the coordinate v
+     * @return the coordinate v
      */
     double getV() const;
 

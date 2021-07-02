@@ -8,8 +8,12 @@
 Camera::Camera(const double verticalFieldOfView, const double nearPlane, const double farPlane, const Vector3 &position,
                const Vector3 &target, const Vector3 &up_vector) : verticalFieldOfView(verticalFieldOfView),
                                                                   nearPlane(nearPlane), farPlane(farPlane) {
+
+    // Checks if planes are both positive and that the near is smaller than the far one
     assert (nearPlane >= 0);
     assert (farPlane >= 0 && nearPlane <= farPlane);
+
+    // Generates the view matrix
 
     Vector3 v = (target - position);
     v = v / v.norm();
@@ -26,13 +30,14 @@ Camera::Camera(const double verticalFieldOfView, const double nearPlane, const d
 
 }
 
+/*
 Camera::Camera(const double verticalFieldOfView, const double nearPlane, const double farPlane, const Vector3 &position,
                const double pitch,
                const double yaw) {
-    // TODO To be implemented
     assert(false);
     throw 0;
 }
+*/
 
 double Camera::getVerticalFieldOfView() const {
     return verticalFieldOfView;

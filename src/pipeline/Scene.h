@@ -21,9 +21,14 @@ class Scene {
 
 private:
 
-    // Camera in the scene
+    /**
+     * Camera in the scene
+     */
     Camera camera;
-    // Dedicated pipelines for each object
+
+    /**
+     * Dedicated pipelines for each object
+     */
     std::vector<std::unique_ptr<DedicatedPipeline<target_t>>> pipelines;
 
 public:
@@ -36,7 +41,7 @@ public:
 
     /**
      * Add an object to the scene
-     * @tparam Mesh The type of the mesh
+     * @tparam Mesh The type of the meshes
      * @tparam Vertex The type of the vertices of the object
      * @tparam Shader The type of the shader to be applied to the object
      * @tparam Texture The types of the textures to be applied to the object
@@ -49,7 +54,7 @@ public:
                 std::make_unique<DedicatedPipelineImpl<target_t, Mesh, Vertex, Shader, Texture...>>(o.getMeshes(),
                                                                                                     o.getShader(),
                                                                                                     o.getTextures(),
-                                                                                                    o.getBoundingSphere(),
+                                                                                                    o.getBoundingSpheres(),
                                                                                                     o.getInfo()));
     }
 
@@ -82,7 +87,7 @@ public:
                                                  0, 0, -(farPlane - nearPlane) / 2, -(nearPlane + farPlane) / 2,
                                                  0, 0, 0, 1};
 
-        // Calls the appropriate render method for each dedicated pipeline
+        // Calls the appropriate render method for each dedicated pipeline and counts the number of objects rendered
         int rendered_objects = 0;
         for (auto &pipeline : pipelines) {
             bool rendered = pipeline->render(target, z_buffer, width, height, camera.getViewMatrix(), projectionMatrix,
@@ -92,8 +97,6 @@ public:
         return rendered_objects;
     }
 
-    // TODO: memory management
-    // TODO: update docs
 };
 
 #endif //INC_3D_RENDERER_SCENE_H

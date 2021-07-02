@@ -66,7 +66,7 @@ SimpleVertex::interpolate(const SimpleVertex &v1, const SimpleVertex &v2, const 
     Vector3 pos = (A1 / sum) * v1Pos + (A2 / sum) * v2Pos + (A3 / sum) * v3Pos;
 
     // Computes the correct z (could be useless)
-    //double z_correction = (A1 / sum) * v1.getZ() + (A2 / sum) * v2.getZ() + (A3 / sum) * v3.getZ();
+    // double z_correction = (A1 / sum) * v1.getZ() + (A2 / sum) * v2.getZ() + (A3 / sum) * v3.getZ();
 
     // Interpolates the color
 

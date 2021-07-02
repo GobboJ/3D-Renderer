@@ -11,14 +11,20 @@
 #include "../pipeline/Pipeline.h"
 #include "../pipeline/Camera.h"
 
+/**
+ * Iterator that iterates on triangles of vertices of type V
+ * @tparam V Type of the vertices
+ */
 template<class V>
 class TriangleIterator {
+
 private:
+
     std::vector<std::array<V, 3>> triangles;
     size_t next;
 
 public:
-    // Previously provided by std::iterator - see update below
+
     typedef std::array<V, 3> value_type;
     typedef ptrdiff_t difference_type;
     typedef value_type *pointer;

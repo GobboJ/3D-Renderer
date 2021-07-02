@@ -27,15 +27,13 @@ void render_char() {
     char target[WIDTH * HEIGHT];
     memset(target, '.', WIDTH * HEIGHT);
 
-    // Creates a fake texture and the example scene
+    // Creates a fake empty texture and the example scene
     myTexture t;
     SampleScene<char, CharShader, CharShader, myTexture> sampleScene(t);
-
 
     // Creates the pipeline and renders the scene
     Pipeline<char> p(target, WIDTH, HEIGHT);
     p.render(sampleScene.getScene());
-
 
     // Prints target
     for (int r = 0; r < HEIGHT; r++) {
@@ -47,6 +45,9 @@ void render_char() {
 }
 
 
+/**
+ * Main
+ */
 int main(int argc, char *argv[]) {
     render_char();
     return 0;

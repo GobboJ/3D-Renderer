@@ -10,9 +10,21 @@
 #include "SimpleMesh.h"
 #include "Shaders.h"
 
+/**
+ * Generates an example scene with arbitrary shaders and textures on an arbitrary target
+ * @tparam target_t The type of the target
+ * @tparam FirstShader The type of the first shader
+ * @tparam SecondShader The type of the second shader
+ * @tparam Texture The type of the texture
+ */
 template<class target_t, class FirstShader, class SecondShader, class Texture>
 class SampleScene {
+
 private:
+
+    /**
+     * Mesh for a colored cube without textures
+     */
     const SimpleMesh<SimpleVertex> colorMesh = {{{1, 1, -1, 0xFF0000},
                                                         {1, -1, -1, 0xFFFF00},
                                                         {1, 1, 1, 0xFF00FF},
@@ -42,6 +54,10 @@ private:
                                                         {4, 0, 1}
                                                 }};
 
+    /**
+     * Mesh for a texture cube.
+     * Uses replicated vertices in order to apply the texture correctly
+     */
     const SimpleMesh<TextureVertex> textureMesh = {{{0, 0, 0, 0, 0},
                                                            {0, 0, 0, 1, 1},
                                                            {0, 0, 0, 1, 0},// 0 - 2
@@ -79,36 +95,76 @@ private:
                                                            {5, 11, 17},
                                                            {11, 17, 23}}};
 
+    /**
+     * Colored cube
+     */
     Object<SimpleMesh<SimpleVertex>, SimpleVertex, FirstShader, Texture> colorCube;
+
+    /**
+     * Textured cube
+     */
     Object<SimpleMesh<TextureVertex>, TextureVertex, SecondShader, Texture> textureCube;
+
+    /**
+     * Camera of the scene
+     */
     Camera camera;
+
+    /**
+     * Generated scene
+     */
     Scene<target_t> scene;
 
 public:
+
+    /**
+     * Constructor of SampleScene
+     * @param texture Texture to be applied on the textured cube
+     */
     explicit SampleScene(Texture &texture) : colorCube({colorMesh}, FirstShader(), texture),
-                                    textureCube({textureMesh}, SecondShader(), texture),
-                                    camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5}),
-                                    scene(camera){
-        colorCube.setPosition(-1,0,-3);
-        colorCube.setScale(.5,.5,.5);
-        textureCube.setPosition(1,0,-3);
+                                             textureCube({textureMesh}, SecondShader(), texture),
+                                             camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5}),
+                                             scene(camera) {
+
+        // Sets position and scale of the cubes
+        colorCube.setPosition(-1, 0, -3);
+        colorCube.setScale(.5, .5, .5);
+        textureCube.setPosition(1, 0, -3);
+
+        // Adds the cubes to the scene
         scene.add(colorCube);
         scene.add(textureCube);
     }
 
-    Object<SimpleMesh<SimpleVertex>, SimpleVertex, FirstShader, Texture> &getColorCube()  {
+    /**
+     * Returns the colored cube object
+     * @return the colored cube object
+     */
+    Object<SimpleMesh<SimpleVertex>, SimpleVertex, FirstShader, Texture> &getColorCube() {
         return colorCube;
     }
 
-    Object<SimpleMesh<TextureVertex>, TextureVertex, SecondShader, Texture> &getTextureCube()  {
+    /**
+     * Returns the textured cube object
+     * @return the textured cube object
+     */
+    Object<SimpleMesh<TextureVertex>, TextureVertex, SecondShader, Texture> &getTextureCube() {
         return textureCube;
     }
 
+    /**
+     * Returns the camera of the scene
+     * @return the camera of the scene
+     */
     const Camera &getCamera() const {
         return camera;
     }
 
-    Scene<target_t> &getScene()  {
+    /**
+     * Returns the generated scene
+     * @return the generated scene
+     */
+    Scene<target_t> &getScene() {
         return scene;
     }
 };

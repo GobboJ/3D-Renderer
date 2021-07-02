@@ -26,9 +26,14 @@ class SimpleMesh {
 
 private:
 
-    // Vertices of the mesh
+    /**
+     * Vertices of the mesh
+     */
     std::vector<V> vertices;
-    // Indices triplets of the vertices that make up each triangle
+
+    /**
+     * Indices triplets of the vertices that make up each triangle
+     */
     std::vector<std::array<int, 3>> indices;
 
 public:
@@ -42,13 +47,21 @@ public:
             vertices), indices(indices) {}
 
     /**
-     * Returns an iterator
-     * @return
+     * Begin method for the triangle iterator
+     * @return A TriangleIterator
      */
     TriangleIterator<V> begin() const { return TriangleIterator<V>(vertices, indices, false); }
 
+    /**
+     * End method for the triangle iterator
+     * @return A TriangleIterator
+     */
     TriangleIterator<V> end() const { return TriangleIterator<V>(vertices, indices, true); }
 
+    /**
+     * Returns the vertices of the mesh
+     * @return The vertices of the mesh
+     */
     const std::vector<V> &getVertices() const {
         return vertices;
     }

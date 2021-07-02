@@ -16,13 +16,24 @@ class Pipeline {
 
 private:
 
-    // Target
+    /**
+     * Target
+     */
     target_t *target;
-    // Width of the target
+
+    /**
+     * Width of the target
+     */
     const unsigned int width;
-    // Height of the target
+
+    /**
+     * Height of the target
+     */
     const unsigned int height;
-    // Z-Buffer of the target
+
+    /**
+     * Z-Buffer of the target
+     */
     double *z_buffer;
 
 public:

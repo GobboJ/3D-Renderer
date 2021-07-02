@@ -75,9 +75,12 @@ void render_window() {
             unsigned int currentTime;
             unsigned int difference;
 
+            // Speed of the objects
             double velocity = 0.1;
 
+            // Target
             Uint32 *colorTarget = new Uint32[WIDTH * HEIGHT];
+
             // Get the surface contained by the window
             SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
 
@@ -104,7 +107,7 @@ void render_window() {
             // Main loop
             while (!quit) {
 
-                start_chrono(1);
+                // start_chrono(1);
 
                 // Handle events on queue
                 while (SDL_PollEvent(&e) != 0) {
@@ -133,7 +136,7 @@ void render_window() {
                 // Sets the next animation frame
                 // sampleScene.getTextureCube().nextAnimationFrame();
 
-                // Renders the scene
+                // Renders the scene and copies the target on the window surface
                 int rendered_objects = p.render(sampleScene.getScene());
                 SDL_Rect pixel;
                 pixel.w = 1;
@@ -157,7 +160,7 @@ void render_window() {
                                     " fps ]").c_str());
 
                 lastTime = currentTime;
-                stop_chrono(1);
+                // stop_chrono(1);
                 frame++;
                 // Update the surface
                 SDL_UpdateWindowSurface(window);
@@ -173,15 +176,23 @@ void render_window() {
     }
 }
 
+/**
+ * Prints performance info
+ */
 void print_chrono_info(const char *desc, int index) {
 
     std::cout << desc << " " << getAverageMilliseconds(index) << " ms (" << getAverageMicroseconds(index)
               << " micros --> " << getAverageNanoseconds(index) << " nanos)" << std::endl;
 }
 
+/**
+ * Main
+ */
 int main(int argc, char *argv[]) {
     render_window();
 
+    // Prints performance info of each operation
+    /*
     print_chrono_info("Render:      ", 0);
     print_chrono_info("Render2:     ", 1);
     print_chrono_info("Baricentric  ", 2);
@@ -192,7 +203,6 @@ int main(int argc, char *argv[]) {
     print_chrono_info("Triangle     ", 7);
     print_chrono_info("Row          ", 8);
     print_chrono_info("Baricentric 1", 9);
-    //print_chrono_info("Baricentric 2", 10);
-
+    */
     return 0;
 }

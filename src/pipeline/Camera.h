@@ -14,13 +14,24 @@ class Camera {
 
 private:
 
-    // View Matrix (World -> Camera coordinates)
+    /**
+     * View Matrix (World -> Camera coordinates)
+     */
     std::array<double, 16> viewMatrix{};
-    // Vertical field of view
+
+    /**
+     * Vertical field of view
+     */
     double verticalFieldOfView;
-    // Near plane
+
+    /**
+     * Near plane
+     */
     double nearPlane;
-    // Far plane
+
+    /**
+     * Far plane
+     */
     double farPlane;
 
 public:
@@ -49,8 +60,7 @@ public:
      * @param pitch Pitch (rotation around x axis)
      * @param yaw Yaw (rotation around y axis)
      */
-    Camera(double verticalFieldOfView, double nearPlane, double farPlane, const Vector3 &position, double pitch,
-           double yaw);
+    // Camera(double verticalFieldOfView, double nearPlane, double farPlane, const Vector3 &position, double pitch, double yaw);
 
     /**
      * Returns the generated view matrix
@@ -60,16 +70,19 @@ public:
 
     /**
      * Returns the near plane
+     * @return the near plane
      */
     double getNearPlane() const;
 
     /**
      * Returns the far plane
+     * @return the far plane
      */
     double getFarPlane() const;
 
     /**
      * Returns the vertical field of view
+     * @return the vertical field of view
      */
     double getVerticalFieldOfView() const;
 

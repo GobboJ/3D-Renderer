@@ -13,13 +13,27 @@
  */
 class SimpleVertex {
 private:
-    // Coordinate x of the position
+
+    /**
+     * Coordinate x of the position
+     */
     double x;
-    // Coordinate y of the position
+
+    /**
+     * Coordinate y of the position
+     */
     double y;
-    // Coordinate z of the position
+
+
+    /**
+     * Coordinate z of the position
+     */
     double z;
-    // Color of the vertex
+
+
+    /**
+     * Color of the vertex
+     */
     unsigned int color;
 
     /**
@@ -43,21 +57,25 @@ public:
 
     /**
      * Returns the coordinate x
+     * @return the coordinate x
      */
     double getX() const;
 
     /**
      * Returns the coordinate y
+     * @return the coordinate y
      */
     double getY() const;
 
     /**
      * Returns the coordinate z
+     * @return the coordinate z
      */
     double getZ() const;
 
     /**
      * Returns the color
+     * @return the color
      */
     unsigned int getColor() const;
 
