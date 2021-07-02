@@ -75,8 +75,8 @@ public:
      * @param boundingSphere Bounding spheres of the meshes
      * @param info Metadata of the object
      */
-    DedicatedPipelineImpl(std::vector<Mesh> &mesh, Shader &shader, const std::tuple<Texture...> &textures,
-                          std::vector<bounding_sphere> &boundingSphere, ObjectInfo *info)
+    DedicatedPipelineImpl(const std::vector<Mesh> &mesh, const Shader &shader, const std::tuple<Texture...> &textures,
+                          const std::vector<bounding_sphere> &boundingSphere, ObjectInfo *info)
             : mesh(
             mesh), shader(shader), textures(textures), boundingSphere(boundingSphere), info(info) {}
 
