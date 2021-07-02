@@ -2,5 +2,5 @@ cmake-build-*
 build
 .vscode
 .idea
-old
-include
+include/*
+!include/README.md
