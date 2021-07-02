@@ -17,7 +17,7 @@
  * @tparam SecondShader The type of the second shader
  * @tparam Texture The type of the texture
  */
-template<class target_t, class FirstShader, class SecondShader, class Texture>
+template<class target_t, class FirstShader, class SecondShader, class ...Texture>
 class SampleScene {
 
 private:
@@ -98,12 +98,12 @@ private:
     /**
      * Colored cube
      */
-    Object<SimpleMesh<SimpleVertex>, SimpleVertex, FirstShader, Texture> colorCube;
+    Object<SimpleMesh<SimpleVertex>, SimpleVertex, FirstShader, Texture...> colorCube;
 
     /**
      * Textured cube
      */
-    Object<SimpleMesh<TextureVertex>, TextureVertex, SecondShader, Texture> textureCube;
+    Object<SimpleMesh<TextureVertex>, TextureVertex, SecondShader, Texture...> textureCube;
 
     /**
      * Camera of the scene
@@ -121,10 +121,10 @@ public:
      * Constructor of SampleScene
      * @param texture Texture to be applied on the textured cube
      */
-    explicit SampleScene(Texture &texture) : colorCube({colorMesh}, FirstShader(), texture),
-                                             textureCube({textureMesh}, SecondShader(), texture),
-                                             camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5}),
-                                             scene(camera) {
+    explicit SampleScene(Texture& ...texture) : colorCube({colorMesh}, FirstShader(), texture...),
+                                                textureCube({textureMesh}, SecondShader(), texture...),
+                                                camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5}),
+                                                scene(camera) {
 
         // Sets position and scale of the cubes
         colorCube.setPosition(-1, 0, -3);
@@ -140,7 +140,7 @@ public:
      * Returns the colored cube object
      * @return the colored cube object
      */
-    Object<SimpleMesh<SimpleVertex>, SimpleVertex, FirstShader, Texture> &getColorCube() {
+    Object<SimpleMesh<SimpleVertex>, SimpleVertex, FirstShader, Texture...> &getColorCube() {
         return colorCube;
     }
 
@@ -148,7 +148,7 @@ public:
      * Returns the textured cube object
      * @return the textured cube object
      */
-    Object<SimpleMesh<TextureVertex>, TextureVertex, SecondShader, Texture> &getTextureCube() {
+    Object<SimpleMesh<TextureVertex>, TextureVertex, SecondShader, Texture...> &getTextureCube() {
         return textureCube;
     }
 
