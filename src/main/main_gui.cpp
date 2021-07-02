@@ -104,6 +104,9 @@ void render_window() {
             SampleScene<Uint32, ColorShader, TextureShader, myTexture> sampleScene(t);
             Pipeline<Uint32> p(colorTarget, WIDTH, HEIGHT);
 
+            // Flag for animation
+            bool set = false;
+
             // Main loop
             while (!quit) {
 
@@ -133,8 +136,16 @@ void render_window() {
                 // Transforms the two cubes each frame
                 sampleScene.getColorCube().setRotation(((int) (velocity * frame)) % 360, 0, 0);
                 sampleScene.getTextureCube().setRotation(0, ((int) (velocity * frame)) % 360, 0);
-                // Sets the next animation frame
-                // sampleScene.getTextureCube().nextAnimationFrame();
+                sampleScene.getAnotherColorCube().setPosition((velocity * frame / 100) - 5, 0, -8);
+                sampleScene.getAnotherColorCube().setRotation(((int) (velocity * frame)) % 360,
+                                                              ((int) (velocity * frame)) % 360,
+                                                              ((int) (velocity * frame)) % 360);
+
+                // When the moving object goes out of scene, transforms the color cube
+                if (!set && velocity * frame > 1350) {
+                    sampleScene.getColorCube().nextAnimationFrame();
+                    set = true;
+                }
 
                 // Renders the scene and copies the target on the window surface
                 int rendered_objects = p.render(sampleScene.getScene());

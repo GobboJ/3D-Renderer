@@ -55,6 +55,41 @@ private:
                                                 }};
 
     /**
+     * Second mesh for a colored cube without textures
+     */
+    const SimpleMesh<SimpleVertex> secondColorMesh = {{{1, 1, -1, 0xFF0000},
+                                                              {1, -1, -1, 0xFFFF00},
+                                                              {1, 1, 1, 0xFF00FF},
+                                                              {1, -1, 1, 0x0000FF},
+                                                              {-1, 1, -1, 0x00FFFF},
+                                                              {-1, -1, -1, 0x00FF00},
+                                                              {-1, 1, 1, 0x80FF00},
+                                                              {-1, -1, 1, 0x808080},
+                                                              {0, 2, 0, 0xAD0040}},
+                                                      {
+                                                              // Top
+                                                              {8,0,4},
+                                                              {8,0,2},
+                                                              {8,2,6},
+                                                              {8,6,4},
+                                                              // Bottom
+                                                              {1, 3, 7},
+                                                              {1, 7,  5},
+                                                              // Front
+                                                              {2,  7, 3},
+                                                              {2,  6,  7},
+                                                              // Left
+                                                              {6,  5, 7},
+                                                              {6,  4,  5},
+                                                              // Right
+                                                              {0, 3,   1},
+                                                              {0, 2, 3},
+                                                              // Back
+                                                              {4, 1, 5},
+                                                              {4, 0, 1}
+                                                      }};
+
+    /**
      * Mesh for a texture cube.
      * Uses replicated vertices in order to apply the texture correctly
      */
@@ -106,6 +141,11 @@ private:
     Object<SimpleMesh<TextureVertex>, TextureVertex, SecondShader, Texture...> textureCube;
 
     /**
+     * Another colored cube
+     */
+    Object<SimpleMesh<SimpleVertex>, SimpleVertex, FirstShader, Texture...> anotherColorCube;
+
+    /**
      * Camera of the scene
      */
     Camera camera;
@@ -121,8 +161,9 @@ public:
      * Constructor of SampleScene
      * @param texture Texture to be applied on the textured cube
      */
-    explicit SampleScene(Texture& ...texture) : colorCube({colorMesh}, FirstShader(), texture...),
+    explicit SampleScene(Texture &...texture) : colorCube({colorMesh,secondColorMesh}, FirstShader(), texture...),
                                                 textureCube({textureMesh}, SecondShader(), texture...),
+                                                anotherColorCube({colorMesh}, FirstShader(), texture...),
                                                 camera(45.0, 0.1, 10, {0, 0, 0}, {0, 0, -3.5}),
                                                 scene(camera) {
 
@@ -130,10 +171,13 @@ public:
         colorCube.setPosition(-1, 0, -3);
         colorCube.setScale(.5, .5, .5);
         textureCube.setPosition(1, 0, -3);
+        anotherColorCube.setPosition(-5, 0, -8);
+        anotherColorCube.setScale(1, .5, 1);
 
         // Adds the cubes to the scene
         scene.add(colorCube);
         scene.add(textureCube);
+        scene.add(anotherColorCube);
     }
 
     /**
@@ -150,6 +194,14 @@ public:
      */
     Object<SimpleMesh<TextureVertex>, TextureVertex, SecondShader, Texture...> &getTextureCube() {
         return textureCube;
+    }
+
+    /**
+     * Returns the other colored cube object
+     * @return the other colored cube object
+     */
+    Object<SimpleMesh<SimpleVertex>, SimpleVertex, FirstShader, Texture...> &getAnotherColorCube() {
+        return anotherColorCube;
     }
 
     /**
