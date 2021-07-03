@@ -50,7 +50,7 @@ public:
            const Vector3 &target,
            const Vector3 &up_vector = {0, 1, 0});
 
-    /**
+    /*
      * Creates a new FPS camera. NOT IMPLEMENTED
      *
      * @param verticalFieldOfView Vertical FOV of the camera

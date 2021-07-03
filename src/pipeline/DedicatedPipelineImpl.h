@@ -150,10 +150,10 @@ public:
 
 
             // Calls the scanline renderer
-            // scanline_renderer(triangle[0], triangle[1], triangle[2], width, height, v0X, v0Y, v1X, v1Y, den, invDen, target, z_buffer, w1, w2, w3);
+            // scanline_rasterizer(triangle[0], triangle[1], triangle[2], width, height, v0X, v0Y, v1X, v1Y, den, invDen, target, z_buffer, w1, w2, w3);
 
             // Calls the bounding box renderer
-            box_renderer(target, z_buffer, width, height, triangle, w1, w2, w3, box);
+            box_rasterizer(target, z_buffer, width, height, triangle, w1, w2, w3, box);
 
             //stop_chrono(7);
         }
@@ -165,7 +165,7 @@ public:
 private:
 
     /**
-     * Renders the triangle inside the bounding box
+     * Rasterizes the triangle inside the bounding box
      * @param target The target to render to
      * @param z_buffer The Z-Buffer of the target
      * @param width The width of the target
@@ -176,9 +176,9 @@ private:
      * @param w3 Third w value
      * @param box The bounding box containing the triangle
      */
-    inline void box_renderer(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height,
-                             const std::array<Vertex, 3> &triangle, double w1, double w2, double w3,
-                             const bounding_box &box) {
+    inline void box_rasterizer(target_t *target, double *z_buffer, const unsigned int width, const unsigned int height,
+                               const std::array<Vertex, 3> &triangle, double w1, double w2, double w3,
+                               const bounding_box &box) {
 
         // Barycentric coordinate precomputations
         const Vertex &a = triangle[0];
@@ -337,19 +337,19 @@ private:
     }
 
 
-    /**
-     * Unused scan-line renderer
+    /*
+     * Unused scan-line rasterizer
      * Does not work with some edge cases
      */
     /*
-    inline void scanline_renderer(Vertex &v0, Vertex &v1, Vertex &v2, int width, int height,
-                                  double v0X,
-                                  double v0Y,
-                                  double v1X,
-                                  double v1Y,
-                                  double den,
-                                  double invDen,
-                                  target_t *target, double *z_buffer, double w1, double w2, double w3) {
+    inline void scanline_rasterizer(Vertex &v0, Vertex &v1, Vertex &v2, int width, int height,
+                                    double v0X,
+                                    double v0Y,
+                                    double v1X,
+                                    double v1Y,
+                                    double den,
+                                    double invDen,
+                                    target_t *target, double *z_buffer, double w1, double w2, double w3) {
 
         Vertex v0Orig = v0;
         Vertex v1Orig = (v1);
