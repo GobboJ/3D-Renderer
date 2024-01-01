@@ -1,5 +1,7 @@
 # 3D-Renderer
 
+![sdl](report/sdl.png)
+
 ## Description
 
 Project for the course Advanced Algorithms and Programming Methods 2
